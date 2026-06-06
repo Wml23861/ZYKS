@@ -68,15 +68,17 @@ const sidebarClasses = computed(() => [
 ])
 
 const navItems = [
-  { path: '/', label: '学习仪表盘', icon: '&#x2606;', badge: null as number | null },
-  { path: '/subjects', label: '科目学习', icon: '&#x1F4D6;', badge: null },
-  { path: '/ai-teacher', label: 'AI中医老师', icon: '&#x1F9D1;&#x200D;&#x1F3EB;', badge: null },
-  { path: '/flashcards', label: '闪卡记忆', icon: '&#x1F0CF;', badge: null },
-  { path: '/practice', label: '题库刷题', icon: '&#x270E;', badge: null },
-  { path: '/exam/setup', label: '模拟考试', icon: '&#x1F3AF;', badge: null },
-  { path: '/recite', label: '背诵辅助', icon: '&#x1F4D6;', badge: null },
-  { path: '/videos', label: '视频学习', icon: '&#x1F3AC;', badge: null },
-  { path: '/stats', label: '学习统计', icon: '&#x2605;', badge: null },
+  { path: '/', label: '学习仪表盘', icon: '衡', badge: null as number | null },
+  { path: '/subjects', label: '科目学习', icon: '典', badge: null },
+  { path: '/ai-teacher', label: 'AI中医老师', icon: '师', badge: null },
+  { path: '/flashcards', label: '闪卡记忆', icon: '忆', badge: null },
+  { path: '/practice', label: '题库刷题', icon: '题', badge: null },
+  { path: '/exam/setup', label: '模拟考试', icon: '试', badge: null },
+  { path: '/real-exam', label: '真实模考', icon: '考', badge: null },
+  { path: '/past-exams', label: '历年真题', icon: '历', badge: null },
+  { path: '/recite', label: '背诵辅助', icon: '诵', badge: null },
+  { path: '/videos', label: '视频学习', icon: '影', badge: null },
+  { path: '/stats', label: '学习统计', icon: '览', badge: null },
 ]
 
 const overallProgress = ref(0)
@@ -193,10 +195,12 @@ function onNavClick() {
 }
 
 .sidebar-nav-icon {
-  font-size: 18px;
-  width: 24px;
+  font-size: 20px;
+  font-weight: 700;
+  width: 28px;
   text-align: center;
   flex-shrink: 0;
+  font-family: var(--tcm-font-decorative);
 }
 
 .sidebar-nav-label {

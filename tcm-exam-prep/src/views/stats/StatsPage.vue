@@ -231,8 +231,7 @@ onMounted(async () => {
 
 <style scoped>
 .page-stats {
-  max-width: 900px;
-  margin: 0 auto;
+  /* 宽度动态填充 */
 }
 
 .page-title {

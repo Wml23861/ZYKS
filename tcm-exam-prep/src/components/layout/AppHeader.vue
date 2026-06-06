@@ -5,7 +5,7 @@
         <span class="menu-icon"></span>
       </button>
       <router-link to="/" class="app-header-logo">
-        <span class="app-header-logo-icon">&#x262F;</span>
+        <span class="app-header-logo-icon">岐</span>
         <span class="app-header-logo-text">岐黄备考</span>
       </router-link>
     </div>
@@ -15,6 +15,9 @@
           type="text"
           placeholder="搜索科目、知识点、题目..."
           class="app-header-search-input"
+          readonly
+          @focus.prevent="openSearch()"
+          @click.prevent="openSearch()"
         />
         <span class="app-header-search-icon">&#x2315;</span>
       </div>
@@ -53,7 +56,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, inject } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/useAuthStore'
 
@@ -61,6 +64,7 @@ defineEmits<{ toggleSidebar: [] }>()
 
 const router = useRouter()
 const authStore = useAuthStore()
+const openSearch = inject<() => void>('openSearch', () => {})
 
 const isMobile = ref(false)
 const showUserMenu = ref(false)
@@ -166,8 +170,14 @@ onUnmounted(() => {
 }
 
 .app-header-logo-icon {
-  font-size: 24px;
-  color: var(--tcm-primary-500);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--tcm-text-on-primary);
+  background: var(--tcm-primary-500);
+  width: 34px; height: 34px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--tcm-font-decorative);
 }
 
 .app-header-logo-text {
@@ -195,6 +205,7 @@ onUnmounted(() => {
   font-size: var(--tcm-font-sm);
   color: var(--tcm-text-primary);
   outline: none;
+  cursor: pointer;
   transition: border-color 0.2s;
 }
 

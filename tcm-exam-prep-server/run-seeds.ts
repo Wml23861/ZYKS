@@ -15,6 +15,7 @@ async function main() {
   const tables = [
     'video_annotations', 'videos', 'notes', 'wrong_question_records',
     'review_schedules', 'study_records', 'exam_records', 'app_settings',
+    'past_exam_questions', 'past_exams',
     'flashcards', 'questions', 'knowledge_points', 'sections',
     'chapters', 'subjects',
   ]
@@ -38,6 +39,17 @@ async function main() {
   const { seed: seed12 } = await import('./seeds/013_massive_content_seed.ts')
   const { seed: seed13 } = await import('./seeds/015_massive_questions_seed.ts')
   const { seed: seed14 } = await import('./seeds/016_massive_flashcards_seed.ts')
+  const { seed: seed15 } = await import('./seeds/020_massive_knowledge_points.ts')
+  const { seed: seed16 } = await import('./seeds/021_sections_expansion.ts')
+  const { seed: seed17 } = await import('./seeds/022_massive_questions.ts')
+  const { seed: seed18 } = await import('./seeds/024_massive_flashcards.ts')
+  const { seed: seed19 } = await import('./seeds/023_more_questions.ts')
+  const { seed: seed20 } = await import('./seeds/030_a3_a4_b1_questions.ts')
+  const { seed: seed25 } = await import('./seeds/040_past_exam_unit1.ts')
+  const { seed: seed26 } = await import('./seeds/041_past_exam_unit2.ts')
+  const { seed: seed27 } = await import('./seeds/042_past_exam_unit3.ts')
+  const { seed: seed28 } = await import('./seeds/043_past_exam_unit4.ts')
+  const { seed: seed29 } = await import('./seeds/050_past_exam_metadata.ts')
 
   await seed1(db)
   await seed2(db)
@@ -54,6 +66,17 @@ async function main() {
   await seed12(db)
   await seed13(db)
   await seed14(db)
+  await seed15(db)
+  await seed16(db)
+  await seed17(db)
+  await seed18(db)
+  await seed19(db)
+  await seed20(db)
+  await seed25(db)
+  await seed26(db)
+  await seed27(db)
+  await seed28(db)
+  await seed29(db)
 
   // 验证
   const sub = await db('subjects').count('* as c').first() as { c: number }

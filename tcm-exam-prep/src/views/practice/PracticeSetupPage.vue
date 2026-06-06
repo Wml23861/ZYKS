@@ -30,7 +30,7 @@
       <!-- 题型选择 -->
       <div class="setup-section">
         <label class="section-label">题型</label>
-        <p class="section-hint">中医类别医学综合笔试包含 A1、A2、B1 三种题型</p>
+        <p class="section-hint">中医类别医学综合笔试包含 A1、A2、A3、A4、B1 等题型</p>
         <div class="type-chips">
           <button
             v-for="t in questionTypes"
@@ -106,8 +106,15 @@
       </div>
     </TcmCard>
 
-    <!-- 错题本快捷入口 -->
+    <!-- 快捷入口 -->
     <div class="quick-links">
+      <TcmCard hoverable @click="goToPastExams">
+        <div class="quick-link-content">
+          <span class="quick-link-title">历年真题</span>
+          <span class="quick-link-desc">2020-2024年真题练习 (4单元)</span>
+          <span class="quick-link-arrow">&#x2192;</span>
+        </div>
+      </TcmCard>
       <TcmCard hoverable @click="goToWrongQuestions">
         <div class="quick-link-content">
           <span class="quick-link-title">错题本</span>
@@ -140,6 +147,8 @@ const questionCounts = ref<Record<string, number>>({})
 const questionTypes: { label: string; value: QuestionType; desc: string }[] = [
   { label: 'A1 型题', value: 'A1', desc: '单句型最佳选择题' },
   { label: 'A2 型题', value: 'A2', desc: '病例摘要型最佳选择题' },
+  { label: 'A3 型题', value: 'A3', desc: '病例组型最佳选择题' },
+  { label: 'A4 型题', value: 'A4', desc: '病例串型最佳选择题' },
   { label: 'B1 型题', value: 'B1', desc: '标准配伍题' },
 ]
 
@@ -215,6 +224,10 @@ function startPractice(): void {
   router.push({ name: 'practice-session', query: params })
 }
 
+function goToPastExams(): void {
+  router.push({ name: 'practice-session', query: { tags: '真题', all: 'true' } })
+}
+
 function goToWrongQuestions(): void {
   router.push({ name: 'wrong-questions' })
 }
@@ -222,7 +235,7 @@ function goToWrongQuestions(): void {
 
 <style scoped>
 .page-practice-setup {
-  max-width: 800px;
+  /* 宽度动态填充 */
 }
 .page-title {
   font-family: var(--tcm-font-decorative);

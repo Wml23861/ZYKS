@@ -144,12 +144,12 @@ function globalIndex(gIdx: number, iIdx: number): number {
 
 const groupedResults = computed(() => {
   const groups: { label: string; icon: string; items: SearchResultItem[] }[] = [
-    { label: '科目', icon: '\u{1F4DA}', items: [] },
-    { label: '章节', icon: '\u{1F4D6}', items: [] },
-    { label: '节', icon: '\u{1F4C4}', items: [] },
-    { label: '知识点', icon: '\u{1F4A1}', items: [] },
-    { label: '题目', icon: '\u270D\uFE0F', items: [] },
-    { label: '闪卡', icon: '\u{1F0CF}', items: [] },
+    { label: '科目', icon: '目', items: [] },
+    { label: '章节', icon: '章', items: [] },
+    { label: '节', icon: '节', items: [] },
+    { label: '知识点', icon: '知', items: [] },
+    { label: '题目', icon: '题', items: [] },
+    { label: '闪卡', icon: '忆', items: [] },
   ]
   for (const item of results.value) {
     const map: Record<string, number> = {
@@ -512,7 +512,9 @@ defineExpose({ open, close, toggle, visible })
 }
 
 .result-group-icon {
-  font-size: 14px;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: var(--tcm-font-decorative);
 }
 
 .result-group-count {

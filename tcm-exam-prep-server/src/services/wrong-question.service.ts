@@ -71,7 +71,7 @@ export const wrongQuestionService = {
     }
     await db('wrong_question_records')
       .insert(row)
-      .onConflict(['id'])
+      .onConflict(['user_id', 'question_id'])
       .merge()
     return record
   },

@@ -296,7 +296,7 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.page-hotpoints { max-width: 960px; }
+.page-hotpoints { /* 宽度动态填充 */ }
 
 .page-header { margin-bottom: 24px; }
 .page-title {

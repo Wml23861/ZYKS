@@ -147,7 +147,7 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.page-video-player { max-width: 1100px; }
+.page-video-player { /* 宽度动态填充 */ }
 .back-link { color: var(--tcm-text-secondary); font-size: var(--tcm-font-sm); text-decoration: none; }
 .back-link:hover { color: var(--tcm-primary-500); }
 .page-title { font-family: var(--tcm-font-decorative); font-size: var(--tcm-font-2xl); color: var(--tcm-text-primary); margin: 12px 0 24px; }

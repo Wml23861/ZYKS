@@ -44,15 +44,16 @@
         :class="{ 'is-revealed': revealedMap[index] }"
       >
         <div class="acupoint-front" @click="toggleReveal(index)">
-          <!-- 优先加载本地医学百科图片，失败则用SVG解剖图回退 -->
+          <!-- el-image: JPG实拍优先 → SVG定位图回退 → 解剖SVG兜底 -->
           <div class="acupoint-image-wrap">
-            <img
+            <el-image
               v-show="!failedAcuImages.has(point.name)"
-              :src="`/images/acupoints/${encodeURIComponent(point.name)}.jpg`"
-              :alt="point.name"
+              :src="getAcuImageSrc(point.name)"
+              :preview-src-list="[getAcuImageSrc(point.name)]"
+              :preview-teleported="true"
+              fit="cover"
               class="acupoint-photo"
-              loading="lazy"
-              @error="failedAcuImages.add(point.name)"
+              @error="() => onAcuImgError(point.name)"
             />
             <AcupointIllustration
               v-if="failedAcuImages.has(point.name)"
@@ -103,6 +104,7 @@
     </div>
 
     <TcmEmpty v-if="filteredPoints.length === 0" description="该分类下暂无穴位数据" />
+
   </div>
 </template>
 
@@ -116,6 +118,18 @@ const revealedMap = reactive<Record<number, boolean>>({})
 const activeMeridian = ref('')
 const searchQuery = ref('')
 const failedAcuImages = reactive(new Set<string>())
+// 图片路径：JPG实拍优先，失败切换SVG定位图
+const acuImgExt = reactive<Record<string, string>>({})
+function getAcuImageSrc(name: string): string {
+  const encoded = encodeURIComponent(name)
+  const ext = acuImgExt[name] || '.jpg'
+  return `/images/acupoints/${encoded}${ext}`
+}
+function onAcuImgError(name: string): void {
+  if (!acuImgExt[name]) { acuImgExt[name] = '.svg' }  // JPG失败→尝试SVG
+  else { failedAcuImages.add(name) }                    // SVG也失败→解剖图兜底
+}
+
 
 interface Acupoint {
   name: string
@@ -1139,8 +1153,7 @@ function toggleReveal(index: number): void {
 
 <style scoped>
 .page-acupoints {
-  max-width: 900px;
-  margin: 0 auto;
+  /* 宽度动态填充 */
 }
 
 .page-header {
@@ -1335,4 +1348,9 @@ function toggleReveal(index: number): void {
     grid-template-columns: 1fr;
   }
 }
+
+
+
+/* el-image 统一尺寸 */
+.acupoint-photo { width: 100%; height: 140px; border-radius: var(--tcm-radius-sm); cursor: pointer; }
 </style>

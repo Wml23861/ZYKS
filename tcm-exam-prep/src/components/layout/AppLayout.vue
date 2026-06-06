@@ -23,7 +23,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, provide } from 'vue'
 import AppHeader from './AppHeader.vue'
 import AppSidebar from './AppSidebar.vue'
 import AppMobileCapsuleNav from './AppMobileCapsuleNav.vue'
@@ -51,6 +51,12 @@ function updateBreakpoint() {
 function toggleSidebar() {
   sidebarCollapsed.value = !sidebarCollapsed.value
 }
+
+function openSearch() {
+  searchPanelRef.value?.open()
+}
+
+provide('openSearch', openSearch)
 
 function onGlobalKeydown(e: KeyboardEvent) {
   if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
@@ -100,9 +106,31 @@ onUnmounted(() => {
 }
 
 .app-layout-content {
-  max-width: var(--tcm-content-max-width);
-  margin: 0 auto;
   padding: var(--tcm-content-padding-y) var(--tcm-content-padding-x);
   width: 100%;
+}
+</style>
+
+<!-- 非 scoped：覆盖全局滚动条，让外层滚动条透明不占位 -->
+<style>
+.app-layout-main {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+.app-layout-main::-webkit-scrollbar {
+  width: 6px;
+}
+.app-layout-main::-webkit-scrollbar-track {
+  background: transparent;
+}
+.app-layout-main::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 3px;
+}
+.app-layout-main:hover::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.12);
+}
+.app-layout-main::-webkit-scrollbar-thumb:hover {
+  background: rgba(0,0,0,0.22);
 }
 </style>

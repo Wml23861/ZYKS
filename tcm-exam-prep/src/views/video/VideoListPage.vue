@@ -67,7 +67,7 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.page-videos { max-width: 960px; }
+.page-videos { /* 宽度动态填充 */ }
 .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
 .page-title { font-family: var(--tcm-font-decorative); font-size: var(--tcm-font-2xl); color: var(--tcm-text-primary); }
 .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }

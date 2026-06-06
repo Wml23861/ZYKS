@@ -204,7 +204,7 @@ function goTo(name: string): void { router.push({ name }) }
 
 .tips-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   gap: 12px 32px;
 }
 

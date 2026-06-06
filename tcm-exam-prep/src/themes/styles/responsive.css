@@ -1,8 +1,8 @@
-/* 6级响应式断点 */
+/* 6级响应式断点 — 内容宽度动态填充屏幕，仅保留必要边距 */
 :root{--tcm-content-max-width:100%;--tcm-content-padding-x:12px;--tcm-content-padding-y:12px}
-@media(min-width:480px){:root{--tcm-content-max-width:460px;--tcm-content-padding-x:16px}}
-@media(min-width:768px){:root{--tcm-content-max-width:720px;--tcm-content-padding-x:20px;--tcm-content-padding-y:20px}}
-@media(min-width:1024px){:root{--tcm-content-max-width:960px;--tcm-content-padding-x:24px;--tcm-content-padding-y:24px}}
-@media(min-width:1440px){:root{--tcm-content-max-width:1200px}}
-@media(min-width:1920px){:root{--tcm-content-max-width:1600px;--tcm-content-padding-x:40px;--tcm-content-padding-y:28px}}
+@media(min-width:480px){:root{--tcm-content-padding-x:16px}}
+@media(min-width:768px){:root{--tcm-content-padding-x:20px;--tcm-content-padding-y:20px}}
+@media(min-width:1024px){:root{--tcm-content-padding-x:24px;--tcm-content-padding-y:24px}}
+@media(min-width:1440px){:root{--tcm-content-padding-x:28px}}
+@media(min-width:1920px){:root{--tcm-content-padding-x:36px;--tcm-content-padding-y:28px}}
 @media(max-width:767px){button,[role="button"],.clickable{min-height:44px}button.icon-only,[role="button"].icon-only{min-width:44px}}

@@ -11,7 +11,9 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    A3A4QuestionGroup: typeof import('./components/question/A3A4QuestionGroup.vue')['default']
     AcupointIllustration: typeof import('./components/recite/AcupointIllustration.vue')['default']
+    AcupointImage: typeof import('./components/recite/AcupointImage.vue')['default']
     AppBreadcrumb: typeof import('./components/layout/AppBreadcrumb.vue')['default']
     AppHeader: typeof import('./components/layout/AppHeader.vue')['default']
     AppLayout: typeof import('./components/layout/AppLayout.vue')['default']
@@ -23,6 +25,7 @@ declare module 'vue' {
     CompareTable: typeof import('./components/common/CompareTable.vue')['default']
     ContentContainer: typeof import('./components/layout/ContentContainer.vue')['default']
     ElIcon: typeof import('element-plus/es')['ElIcon']
+    ElImage: typeof import('element-plus/es')['ElImage']
     FlashCard: typeof import('./components/flashcard/FlashCard.vue')['default']
     FlashCardProgress: typeof import('./components/flashcard/FlashCardProgress.vue')['default']
     FlashCardRating: typeof import('./components/flashcard/FlashCardRating.vue')['default']

@@ -1,6 +1,6 @@
 <template>
   <div class="page-chapter" :class="`page-chapter--font-${settingsStore.settings.fontSize}`">
-    <div v-if="!isLoading && sections.length > 0">
+    <div v-if="!isLoading && sections.length > 0" class="page-chapter-inner">
       <div class="chapter-header">
         <router-link
           :to="`/subjects/${subjectId}`"
@@ -10,18 +10,20 @@
       </div>
 
       <div class="chapter-layout">
-        <div class="section-nav">
+        <aside class="section-nav">
           <h3 class="nav-title">本节目录</h3>
-          <div
-            v-for="(section, idx) in sections"
-            :key="section.id"
-            :class="['section-nav-item', { active: activeSection === idx }]"
-            @click="scrollToSection(idx)"
-          >
-            <span class="section-nav-num">{{ idx + 1 }}</span>
-            <span class="section-nav-label">{{ section.title }}</span>
+          <div class="nav-list">
+            <div
+              v-for="(section, idx) in sections"
+              :key="section.id"
+              :class="['section-nav-item', { active: activeSection === idx }]"
+              @click="scrollToSection(idx)"
+            >
+              <span class="section-nav-num">{{ idx + 1 }}</span>
+              <span class="section-nav-label">{{ section.title }}</span>
+            </div>
           </div>
-        </div>
+        </aside>
 
         <div class="chapter-content" ref="contentRef" @scroll="onContentScroll">
           <div
@@ -261,54 +263,131 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.page-chapter { max-width: var(--tcm-content-max-width); }
+.page-chapter { height: calc(100vh - 88px); }
+.page-chapter-inner { display: flex; flex-direction: column; height: 100%; overflow: hidden; }
 
-.chapter-header { margin-bottom: 24px; }
-.back-link { color: var(--tcm-text-secondary); font-size: var(--tcm-font-sm); text-decoration: none; display: inline-block; margin-bottom: 12px; }
+.chapter-header { flex-shrink: 0; margin-bottom: 16px; }
+.back-link { color: var(--tcm-text-secondary); font-size: var(--tcm-font-sm); text-decoration: none; display: inline-block; margin-bottom: 8px; }
 .back-link:hover { color: var(--tcm-primary-500); }
-.chapter-title { font-family: var(--tcm-font-decorative); font-size: var(--tcm-font-2xl); color: var(--tcm-text-primary); }
+.chapter-title { font-family: var(--tcm-font-decorative); font-size: var(--tcm-font-2xl); color: var(--tcm-text-primary); margin: 0; }
 
-.chapter-layout { display: flex; gap: 32px; align-items: flex-start; }
+/* ===== 左右双栏 — 固定高度 flex 布局 ===== */
+.chapter-layout {
+  flex: 1;
+  display: flex;
+  gap: 24px;
+  min-height: 0;
+  overflow: hidden;
+}
 
+/* ===== 左侧目录 — 单独滚动，始终可见 ===== */
+.section-nav {
+  width: 260px;
+  min-width: 260px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--tcm-bg-surface);
+  border: 1px solid var(--tcm-border-light);
+  border-radius: var(--tcm-radius-lg);
+  box-shadow: var(--tcm-shadow-sm);
+  overflow: hidden;
+}
+
+.nav-title {
+  font-family: var(--tcm-font-decorative);
+  font-size: var(--tcm-font-md);
+  font-weight: 600;
+  color: var(--tcm-text-primary);
+  padding: 14px 16px 10px;
+  margin: 0;
+  border-bottom: 1px solid var(--tcm-border-light);
+  flex-shrink: 0;
+}
+
+.nav-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 10px;
+}
+
+.nav-list::-webkit-scrollbar { width: 4px; }
+.nav-list::-webkit-scrollbar-track { background: transparent; }
+.nav-list::-webkit-scrollbar-thumb { background: var(--tcm-border); border-radius: 2px; }
+
+.section-nav-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 8px;
+  border-radius: var(--tcm-radius-md);
+  cursor: pointer;
+  transition: all var(--tcm-transition-fast);
+  position: relative;
+  margin-bottom: 2px;
+}
+
+.section-nav-num {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--tcm-bg-base);
+  border-radius: 50%;
+  font-size: var(--tcm-font-xs);
+  font-weight: 600;
+  flex-shrink: 0;
+  color: var(--tcm-text-secondary);
+  transition: all var(--tcm-transition-fast);
+}
+
+.section-nav-label {
+  flex: 1;
+  font-size: var(--tcm-font-sm);
+  color: var(--tcm-text-secondary);
+  line-height: 1.5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color var(--tcm-transition-fast);
+}
+
+.section-nav-item:hover { background: var(--tcm-bg-elevated); }
+.section-nav-item:hover .section-nav-label { color: var(--tcm-text-primary); }
+
+.section-nav-item.active {
+  background: linear-gradient(135deg, #FDF0ED 0%, #FFF5F3 100%);
+}
+
+.section-nav-item.active .section-nav-num {
+  background: var(--tcm-primary-500);
+  color: #fff;
+}
+
+.section-nav-item.active .section-nav-label {
+  color: var(--tcm-primary-700);
+  font-weight: 500;
+}
+
+/* 移动端隐藏 */
 @media (max-width: 768px) {
+  .section-nav { display: none; }
   .chapter-layout { flex-direction: column; }
 }
 
-.section-nav {
-  width: 200px;
-  flex-shrink: 0;
-  position: sticky;
-  top: 72px;
-  background: var(--tcm-bg-surface);
-  border: 1px solid var(--tcm-border-light);
-  border-radius: var(--tcm-radius-md);
-  padding: 12px;
-  max-height: calc(100vh - 100px);
+/* ===== 右侧内容区 — 单独滚动 ===== */
+.chapter-content {
+  flex: 1;
+  min-width: 0;
   overflow-y: auto;
+  padding-right: 8px;
+  position: relative;
 }
 
-@media (max-width: 768px) {
-  .section-nav { display: none; }
-}
-
-.nav-title { font-size: var(--tcm-font-sm); font-weight: 600; color: var(--tcm-text-primary); margin-bottom: 8px; padding: 0 8px; }
-.section-nav-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px;
-  border-radius: var(--tcm-radius-sm);
-  cursor: pointer;
-  font-size: var(--tcm-font-sm);
-  color: var(--tcm-text-secondary);
-  transition: all 0.15s;
-}
-.section-nav-item:hover { background: var(--tcm-bg-elevated); }
-.section-nav-item.active { background: var(--tcm-primary-50); color: var(--tcm-primary-500); }
-.section-nav-num { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; background: var(--tcm-bg-base); border-radius: 50%; font-size: var(--tcm-font-xs); flex-shrink: 0; }
-.section-nav-item.active .section-nav-num { background: var(--tcm-primary-500); color: var(--tcm-text-on-primary); }
-
-.chapter-content { flex: 1; min-width: 0; }
+.chapter-content::-webkit-scrollbar { width: 5px; }
+.chapter-content::-webkit-scrollbar-track { background: transparent; }
+.chapter-content::-webkit-scrollbar-thumb { background: var(--tcm-border); border-radius: 3px; }
 
 .section-block { margin-bottom: 8px; }
 .section-title {

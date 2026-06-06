@@ -198,8 +198,7 @@ onMounted(async () => {
 
 <style scoped>
 .page-exam-setup {
-  max-width: 780px;
-  margin: 0 auto;
+  /* 宽度动态填充 */
 }
 
 .page-title {

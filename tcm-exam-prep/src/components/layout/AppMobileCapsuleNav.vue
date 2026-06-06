@@ -30,13 +30,14 @@ interface CapsuleItem {
 }
 
 const items: CapsuleItem[] = [
-  { key: 'practice', label: '刷题', icon: '✎', path: '/practice' },
-  { key: 'wrong', label: '错题', icon: '⚠', path: '/practice/wrong' },
-  { key: 'subjects', label: '知识', icon: '📖', path: '/subjects' },
-  { key: 'exam', label: '模考', icon: '🎯', path: '/exam/setup' },
-  { key: 'recite', label: '背诵', icon: '📜', path: '/recite' },
-  { key: 'flashcards', label: '闪卡', icon: '🃏', path: '/flashcards' },
-  { key: 'stats', label: '统计', icon: '★', path: '/stats' },
+  { key: 'practice', label: '刷题', icon: '题', path: '/practice' },
+  { key: 'wrong', label: '错题', icon: '纠', path: '/practice/wrong' },
+  { key: 'subjects', label: '知识', icon: '典', path: '/subjects' },
+  { key: 'exam', label: '模考', icon: '试', path: '/exam/setup' },
+  { key: 'past-exams', label: '真题', icon: '历', path: '/past-exams' },
+  { key: 'recite', label: '背诵', icon: '诵', path: '/recite' },
+  { key: 'flashcards', label: '闪卡', icon: '忆', path: '/flashcards' },
+  { key: 'stats', label: '统计', icon: '览', path: '/stats' },
 ]
 
 function isActive(item: CapsuleItem): boolean {
@@ -108,7 +109,9 @@ onMounted(() => {
 }
 
 .capsule-icon {
-  font-size: 15px;
+  font-size: 16px;
+  font-weight: 700;
   line-height: 1;
+  font-family: var(--tcm-font-decorative);
 }
 </style>

@@ -532,7 +532,7 @@ function getQueueTypeLabel(itemType: string): string {
 </script>
 
 <style scoped>
-.page-dashboard { max-width: 960px; }
+.page-dashboard { /* 宽度动态填充 */ }
 
 .dashboard-header { text-align: center; padding: 32px 0; }
 .dashboard-title {
@@ -567,8 +567,7 @@ function getQueueTypeLabel(itemType: string): string {
 .countdown-warn { color: var(--tcm-warning); font-size: var(--tcm-font-sm); }
 
 /* Stats */
-.dashboard-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
-@media (max-width: 768px) { .dashboard-stats { grid-template-columns: repeat(2, 1fr); } }
+.dashboard-stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; margin-bottom: 32px; }
 
 .stat-card :deep(.tcm-card-body) { text-align: center; padding: 24px 16px; }
 .stat-value {
@@ -692,8 +691,7 @@ function getQueueTypeLabel(itemType: string): string {
 .task-action { color: var(--tcm-primary-500); text-decoration: none; font-weight: 600; flex-shrink: 0; }
 
 /* Quick Actions */
-.quick-actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
-@media (max-width: 768px) { .quick-actions { grid-template-columns: repeat(2, 1fr); } }
+.quick-actions { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
 .quick-action-card { cursor: pointer; }
 .quick-action-icon { font-size: 32px; margin-bottom: 8px; }
 .quick-action-text h3 { font-size: var(--tcm-font-md); color: var(--tcm-text-primary); margin-bottom: 4px; }

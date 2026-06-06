@@ -151,7 +151,7 @@ onMounted(async () => {
 
 <style scoped>
 .page-bookmarks {
-  max-width: 800px;
+  /* 宽度动态填充 */
 }
 
 .page-header {

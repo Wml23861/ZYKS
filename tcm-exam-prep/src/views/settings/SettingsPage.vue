@@ -176,6 +176,39 @@
         </div>
       </TcmCard>
 
+      <!-- 修改密码 -->
+      <TcmCard title="修改密码" class="settings-section">
+        <div class="form-grid">
+          <div class="form-item">
+            <label class="form-label">原密码</label>
+            <input v-model="pwForm.oldPassword" type="password" class="form-input" placeholder="输入当前密码" />
+          </div>
+          <div class="form-item">
+            <label class="form-label">新密码</label>
+            <input v-model="pwForm.newPassword" type="password" class="form-input" placeholder="新密码（至少6位）" />
+          </div>
+        </div>
+        <p v-if="pwForm.message" :class="['pw-msg', pwForm.ok ? 'pw-msg--ok' : 'pw-msg--err']">{{ pwForm.message }}</p>
+        <TcmButton variant="outline" size="md" :loading="pwForm.loading" @click="handleChangePassword">修改密码</TcmButton>
+      </TcmCard>
+
+      <!-- 管理员：用户管理 -->
+      <TcmCard v-if="authStore.user?.role === 'admin'" title="用户管理" class="settings-section">
+        <div v-if="userList.length > 0" class="user-list">
+          <div v-for="u in userList" :key="u.id" class="user-row">
+            <div class="user-info">
+              <span class="user-name">{{ u.displayName || u.username }}</span>
+              <span class="user-role-badge">{{ u.role === 'admin' ? '管理员' : '用户' }}</span>
+            </div>
+            <div v-if="u.id !== authStore.user?.id" class="user-actions-row">
+              <input v-model="resetPw[u.id]" type="text" class="form-input form-input--sm" placeholder="新密码" />
+              <TcmButton size="sm" variant="text" @click="handleResetUserPw(u.id)">重置</TcmButton>
+            </div>
+          </div>
+        </div>
+        <TcmButton variant="text" size="sm" :loading="loadingUsers" @click="loadUserList">刷新用户列表</TcmButton>
+      </TcmCard>
+
       <!-- 操作按钮 -->
       <div class="settings-actions">
         <TcmButton variant="primary" size="lg" :loading="saving" @click="handleSave">
@@ -195,12 +228,54 @@ import TcmCard from '@/components/ui/TcmCard.vue'
 import TcmButton from '@/components/ui/TcmButton.vue'
 import TcmSkeleton from '@/components/ui/TcmSkeleton.vue'
 import { useSettingsStore } from '@/stores/useSettingsStore'
+import { useAuthStore } from '@/stores/useAuthStore'
+import { apiGet, apiPut, apiPost } from '@/utils/api-client'
 import { daysUntilExam } from '@/utils/date'
 import type { AppSettings, ThemeMode, FontSize, Season } from '@/types'
 
 const settingsStore = useSettingsStore()
+const authStore = useAuthStore()
 const isLoaded = ref(false)
 const saving = ref(false)
+
+// 密码修改
+const pwForm = reactive({ oldPassword: '', newPassword: '', loading: false, message: '', ok: false })
+async function handleChangePassword(): Promise<void> {
+  pwForm.message = ''
+  if (!pwForm.oldPassword || !pwForm.newPassword) { pwForm.message = '请填写原密码和新密码'; return }
+  if (pwForm.newPassword.length < 6) { pwForm.message = '新密码至少6位'; return }
+  pwForm.loading = true
+  try {
+    await apiPut('/api/auth/password', { oldPassword: pwForm.oldPassword, newPassword: pwForm.newPassword })
+    pwForm.message = '密码修改成功'; pwForm.ok = true
+    pwForm.oldPassword = ''; pwForm.newPassword = ''
+  } catch (e: unknown) {
+    const err = e as Error; pwForm.message = err.message || '修改失败'; pwForm.ok = false
+  } finally { pwForm.loading = false }
+}
+
+// 用户管理（管理员）
+interface UserItem { id: string; username: string; displayName: string; role: string; createdAt: number }
+const userList = ref<UserItem[]>([])
+const resetPw = reactive<Record<string, string>>({})
+const loadingUsers = ref(false)
+async function loadUserList(): Promise<void> {
+  loadingUsers.value = true
+  try { userList.value = await apiGet<UserItem[]>('/api/auth/users') } catch { userList.value = [] }
+  finally { loadingUsers.value = false }
+}
+async function handleResetUserPw(userId: string): Promise<void> {
+  const pw = resetPw[userId]
+  if (!pw || pw.length < 6) return
+  try {
+    await apiPost(`/api/auth/reset-password/${userId}`, { newPassword: pw })
+    resetPw[userId] = ''
+    alert('密码已重置')
+  } catch (e: unknown) {
+    const err = e as Error; alert(err.message || '重置失败')
+  }
+}
+onMounted(() => { if (authStore.user?.role === 'admin') loadUserList() })
 
 const seasons = [
   { key: 'spring' as Season, label: '春 · 兰', desc: '青绿生机', icon: '🌿', color: '#4A8C6F' },
@@ -320,7 +395,7 @@ onMounted(async () => {
 .form-grid {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 24px;
 }
 
 .form-item {
@@ -332,7 +407,7 @@ onMounted(async () => {
   font-size: var(--tcm-font-base);
   font-weight: 600;
   color: var(--tcm-text-primary);
-  margin-bottom: 4px;
+  margin-bottom: 8px;
 }
 
 .form-hint {
@@ -343,8 +418,8 @@ onMounted(async () => {
 
 .form-input {
   width: 100%;
-  max-width: 240px;
-  padding: 8px 12px;
+  max-width: 280px;
+  padding: 10px 14px;
   border: 1px solid var(--tcm-border);
   border-radius: var(--tcm-radius-md);
   background: var(--tcm-bg-base);
@@ -430,7 +505,7 @@ onMounted(async () => {
 /* ===== 季节选择器 ===== */
 .season-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   gap: 10px;
 }
 .season-btn {
@@ -469,4 +544,18 @@ onMounted(async () => {
   gap: 16px;
   padding: 8px 0 40px;
 }
+
+/* 密码修改 */
+.pw-msg { margin: 12px 0 8px; font-size: var(--tcm-font-sm); }
+.pw-msg--ok { color: var(--tcm-jade-500); }
+.pw-msg--err { color: var(--tcm-error); }
+
+/* 用户管理 */
+.user-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+.user-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: var(--tcm-bg-base); border-radius: var(--tcm-radius-sm); gap: 8px; }
+.user-info { display: flex; align-items: center; gap: 8px; }
+.user-name { font-size: var(--tcm-font-sm); font-weight: 500; color: var(--tcm-text-primary); }
+.user-role-badge { font-size: 11px; padding: 1px 8px; border-radius: 10px; background: #E8F5E9; color: var(--tcm-jade-500); }
+.user-actions-row { display: flex; align-items: center; gap: 6px; }
+.form-input--sm { width: 120px; padding: 6px 10px; font-size: var(--tcm-font-sm); }
 </style>

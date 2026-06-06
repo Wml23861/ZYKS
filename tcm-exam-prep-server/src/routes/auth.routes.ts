@@ -46,4 +46,42 @@ router.get('/me', requireAuth, async (req, res, next) => {
   }
 })
 
+// PUT /api/auth/password — 用户修改自己的密码
+router.put('/password', requireAuth, async (req, res, next) => {
+  try {
+    const { oldPassword, newPassword } = req.body as { oldPassword: string; newPassword: string }
+    if (!oldPassword || !newPassword || newPassword.length < 6) {
+      return res.status(400).json({ success: false, error: '原密码和新密码都不能为空，新密码至少6位' })
+    }
+    await authService.changePassword(req.userId!, oldPassword, newPassword)
+    res.json({ success: true, data: { message: '密码修改成功' } })
+  } catch (err) {
+    next(err)
+  }
+})
+
+// POST /api/auth/reset-password/:userId — 管理员重置用户密码
+router.post('/reset-password/:userId', requireAuth, async (req, res, next) => {
+  try {
+    const { newPassword } = req.body as { newPassword: string }
+    if (!newPassword || newPassword.length < 6) {
+      return res.status(400).json({ success: false, error: '新密码至少6位' })
+    }
+    await authService.resetUserPassword(req.userId!, req.params.userId, newPassword)
+    res.json({ success: true, data: { message: '密码已重置' } })
+  } catch (err) {
+    next(err)
+  }
+})
+
+// GET /api/auth/users — 管理员查看用户列表
+router.get('/users', requireAuth, async (req, res, next) => {
+  try {
+    const users = await authService.listUsers(req.userId!)
+    res.json({ success: true, data: users })
+  } catch (err) {
+    next(err)
+  }
+})
+
 export { router as authRoutes }

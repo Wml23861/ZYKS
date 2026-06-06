@@ -235,7 +235,7 @@ const activeComparison = computed<ComparisonGroup>(() => {
 </script>
 
 <style scoped>
-.page-study { max-width: 960px; }
+.page-study { /* 宽度动态填充 */ }
 
 .page-header { text-align: center; padding: 24px 0 20px; }
 .page-title {

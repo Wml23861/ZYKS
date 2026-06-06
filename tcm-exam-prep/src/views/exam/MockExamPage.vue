@@ -75,6 +75,23 @@
             </div>
           </template>
 
+          <!-- A3/A4 题组处理 -->
+          <template v-else-if="(currentQuestion.type === 'A3' || currentQuestion.type === 'A4') && currentQuestion.isGroupRoot">
+            <A3A4QuestionGroup
+              :type="currentQuestion.type as 'A3' | 'A4'"
+              :clinical-scenario="a3a4ClinicalScenario"
+              :sub-questions="a3a4GroupSubQuestions"
+              :show-results="false"
+              @answer="(qId: string, ans: string) => selectAnswer(qId, ans)"
+            />
+            <div class="mark-toggle-wrap">
+              <button class="mark-toggle" @click="toggleMark(a3a4GroupSubQuestions[currentSubIdx]?.id ?? '')">
+                <span class="mark-icon">{{ getAnswer(a3a4GroupSubQuestions[currentSubIdx]?.id ?? '')?.isMarked ? '\u2605' : '\u2606' }}</span>
+                {{ getAnswer(a3a4GroupSubQuestions[currentSubIdx]?.id ?? '')?.isMarked ? '已标记' : '标记此题' }}
+              </button>
+            </div>
+          </template>
+
           <!-- A1/A2 题型 -->
           <template v-else>
             <div class="question-card" :class="{ 'is-marked': currentQuestionAnswer?.isMarked }">
@@ -211,6 +228,7 @@ import TcmButton from '@/components/ui/TcmButton.vue'
 import TcmTag from '@/components/ui/TcmTag.vue'
 import TcmEmpty from '@/components/ui/TcmEmpty.vue'
 import TcmDivider from '@/components/ui/TcmDivider.vue'
+import A3A4QuestionGroup from '@/components/question/A3A4QuestionGroup.vue'
 import { examRepo } from '@/db/repositories/examRepo'
 import { questionRepo } from '@/db/repositories/questionRepo'
 import { formatDuration } from '@/utils/date'
@@ -249,6 +267,13 @@ function buildFlatAnswers(): FlatItem[] {
           result.push(ans ?? { questionId: sub.id, userAnswer: null, isCorrect: false, isMarked: false, timeSpent: 0 })
         }
       }
+    } else if ((q.type === 'A3' || q.type === 'A4') && q.isGroupRoot) {
+      for (const sub of qs) {
+        if (sub.groupId === q.id) {
+          const ans = examRecord.value!.answers.find((a: ExamAnswer) => a.questionId === sub.id)
+          result.push(ans ?? { questionId: sub.id, userAnswer: null, isCorrect: false, isMarked: false, timeSpent: 0 })
+        }
+      }
     } else if (!q.groupId) {
       const ans = examRecord.value!.answers.find((a: ExamAnswer) => a.questionId === q.id)
       result.push(ans ?? { questionId: q.id, userAnswer: null, isCorrect: false, isMarked: false, timeSpent: 0 })
@@ -267,7 +292,10 @@ function getCurrentQuestion(): Question | null {
   const q = questions.value.find((q: Question) => q.id === flat.questionId)
   if (!q) return null
   if (q.groupId) {
-    return questions.value.find((r: Question) => r.id === q.groupId) ?? q
+    const root = questions.value.find((r: Question) => r.id === q.groupId)
+    if (root && (root.type === 'B1' || root.type === 'A3' || root.type === 'A4')) {
+      return root
+    }
   }
   return q
 }
@@ -278,6 +306,51 @@ const b1SubQuestions = computed<Question[]>(() => {
   const root = currentQuestion.value
   if (!root || root.type !== 'B1' || !root.sharedOptions) return []
   return questions.value.filter((q: Question) => q.groupId === root.id)
+})
+
+// A3/A4 group data
+const a3a4ClinicalScenario = computed<string>(() => {
+  const root = currentQuestion.value
+  if (!root || (root.type !== 'A3' && root.type !== 'A4') || !root.isGroupRoot) return ''
+  return root.questionStem
+})
+
+const a3a4GroupSubQuestions = computed<{
+  id: string
+  questionStem: string
+  options: { key: string; text: string }[]
+  correctAnswer: string
+  explanation: string
+  difficulty: number
+  userAnswer?: string | null
+  isCorrect?: boolean
+}[]>(() => {
+  const root = currentQuestion.value
+  if (!root || (root.type !== 'A3' && root.type !== 'A4') || !root.isGroupRoot) return []
+  const subs = questions.value.filter((q: Question) => q.groupId === root.id)
+  return subs.map(q => {
+    const ans = getAnswer(q.id)
+    return {
+      id: q.id,
+      questionStem: q.questionStem,
+      options: q.options,
+      correctAnswer: q.correctAnswer,
+      explanation: q.explanation,
+      difficulty: q.difficulty,
+      userAnswer: ans?.userAnswer ?? null,
+      isCorrect: ans?.isCorrect ?? false,
+    }
+  })
+})
+
+const currentSubIdx = computed<number>(() => {
+  const flats = flatAnswers.value
+  if (currentFlatIdx.value >= flats.length) return 0
+  const flat = flats[currentFlatIdx.value]
+  if (!flat) return 0
+  // Find the index of this sub-question within its group
+  const subs = a3a4GroupSubQuestions.value
+  return subs.findIndex(q => q.id === flat.questionId)
 })
 
 const totalCount = computed<number>(() => flatAnswers.value.length)
@@ -297,13 +370,14 @@ function getAnswer(questionId: string): ExamAnswer | null {
 }
 
 function getTypeLabel(type: string): string {
-  const map: Record<string, string> = { A1: 'A1 型题', A2: 'A2 型题', B1: 'B1 型题' }
+  const map: Record<string, string> = { A1: 'A1 型题', A2: 'A2 型题', B1: 'B1 型题', A3: 'A3 型题', A4: 'A4 型题' }
   return map[type] ?? type
 }
 
 function getTypeTag(type: string): 'key' | 'difficult' | 'default' {
   if (type === 'A1') return 'key'
   if (type === 'A2') return 'difficult'
+  if (type === 'A3' || type === 'A4') return 'difficult'
   if (type === 'B1') return 'default'
   return 'default'
 }
@@ -403,15 +477,16 @@ async function loadExam(): Promise<void> {
   const loaded = await questionRepo.findByFilter({ questionIds })
   allQuestions.push(...loaded)
 
-  // 同时加载 B1 题组的子题目和根题目
-  const b1GroupIds = new Set<string>()
+  // 同时加载 B1/A3/A4 题组的子题目和根题目
+  const groupIds = new Set<string>()
   for (const q of loaded) {
-    if (q.groupId) b1GroupIds.add(q.groupId)
-    if (q.type === 'B1' && q.sharedOptions) b1GroupIds.add(q.id)
+    if (q.groupId) groupIds.add(q.groupId)
+    if (q.type === 'B1' && q.sharedOptions) groupIds.add(q.id)
+    if ((q.type === 'A3' || q.type === 'A4') && q.isGroupRoot) groupIds.add(q.id)
   }
-  // 可能需要补充加载 B1 子题目
-  if (b1GroupIds.size > 0) {
-    for (const gid of b1GroupIds) {
+  // 可能需要补充加载组题子题目
+  if (groupIds.size > 0) {
+    for (const gid of groupIds) {
       const subs = await questionRepo.findByFilter({})
       for (const sq of subs) {
         if (sq.groupId === gid && !allQuestions.find(q => q.id === sq.id)) {
@@ -636,6 +711,12 @@ onUnmounted(() => {
 
 .question-actions {
   margin-top: 16px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.mark-toggle-wrap {
+  margin-top: 12px;
   display: flex;
   justify-content: flex-end;
 }

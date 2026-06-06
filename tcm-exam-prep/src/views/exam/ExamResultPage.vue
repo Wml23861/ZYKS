@@ -224,8 +224,7 @@ onMounted(async () => {
 
 <style scoped>
 .page-exam-result {
-  max-width: 800px;
-  margin: 0 auto;
+  /* 宽度动态填充 */
 }
 
 .loading-state {
@@ -316,7 +315,7 @@ onMounted(async () => {
 /* ===== 统计数据 ===== */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 16px;
   text-align: center;
 }

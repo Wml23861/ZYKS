@@ -87,7 +87,7 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.page-subject-detail { max-width: 860px; }
+.page-subject-detail { /* 宽度动态填充 */ }
 
 .subject-header { margin-bottom: 32px; }
 .back-link { color: var(--tcm-text-secondary); font-size: var(--tcm-font-sm); text-decoration: none; display: inline-block; margin-bottom: 16px; }

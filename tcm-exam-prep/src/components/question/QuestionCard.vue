@@ -52,7 +52,8 @@ const renderedExplanation = computed(() => md.render(props.explanation))
 const isCorrect = computed(() => props.selectedAnswer === props.correctAnswer)
 
 const typeTagType = computed(() => {
-  return props.type === 'A1' ? 'key' : props.type === 'A2' ? 'difficult' : 'high-frequency'
+  const m: Record<string, string> = { A1: 'key', A2: 'difficult', A3: 'high-frequency', A4: 'high-frequency' }
+  return (m[props.type] || 'high-frequency') as 'key' | 'difficult' | 'high-frequency' | 'memorize' | 'default'
 })
 
 function optionClasses(key: string) {

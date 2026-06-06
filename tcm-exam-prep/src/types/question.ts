@@ -1,6 +1,6 @@
 /** 题目相关类型定义 */
 
-export type QuestionType = 'A1' | 'A2' | 'B1'
+export type QuestionType = 'A1' | 'A2' | 'B1' | 'A3' | 'A4'
 
 export type QuestionDifficulty = 1 | 2 | 3 | 4 | 5
 

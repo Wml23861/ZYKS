@@ -129,7 +129,7 @@ onMounted(() => {
 
 <style scoped>
 .page-flashcard-list {
-  max-width: 800px;
+  /* 宽度动态填充 */
 }
 
 .page-header {

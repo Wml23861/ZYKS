@@ -384,7 +384,7 @@ function goToTargetedReview(): void {
 </script>
 
 <style scoped>
-.page-wrong-analysis { max-width: 900px; }
+.page-wrong-analysis { /* 宽度动态填充 */ }
 
 .page-header {
   display: flex;
@@ -406,8 +406,7 @@ function goToTargetedReview(): void {
 }
 
 /* Stats */
-.stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 28px; }
-@media (max-width: 768px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
+.stats-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-bottom: 28px; }
 .stat-box {
   display: flex;
   flex-direction: column;

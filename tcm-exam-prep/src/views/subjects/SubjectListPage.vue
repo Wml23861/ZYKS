@@ -52,13 +52,12 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.page-subjects { max-width: 1000px; }
+.page-subjects { /* 宽度动态填充 */ }
 .page-header { margin-bottom: 28px; }
 .page-title { font-family: var(--tcm-font-decorative); font-size: var(--tcm-font-3xl); color: var(--tcm-primary-500); margin-bottom: 8px; }
 .page-desc { color: var(--tcm-text-secondary); font-size: var(--tcm-font-md); }
 
-.subjects-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
-@media (max-width: 640px) { .subjects-grid { grid-template-columns: 1fr; } }
+.subjects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 16px; }
 
 .subject-card-wrapper { cursor: pointer; }
 .subject-card {

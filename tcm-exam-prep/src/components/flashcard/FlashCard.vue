@@ -72,15 +72,17 @@ function flip(): void { emit('flip') }
 
 <style scoped>
 .flashcard-container {
-  perspective: 1200px;
+  perspective: 800px;
   width: 100%;
+  max-width: 680px;
+  margin: 0 auto;
   cursor: pointer;
 }
 
 .flashcard {
   display: grid;
   grid-template-areas: 'face';
-  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.45s ease;
   transform-style: preserve-3d;
 }
 
@@ -94,9 +96,9 @@ function flip(): void { emit('flip') }
   display: flex;
   flex-direction: column;
   backface-visibility: hidden;
-  border-radius: 16px;
+  border-radius: 14px;
   overflow: hidden;
-  min-height: 260px;
+  min-height: 200px;
 }
 
 .flashcard-front {
@@ -117,7 +119,7 @@ function flip(): void { emit('flip') }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 32px;
+  padding: 12px 24px;
   border-bottom: 1px solid var(--tcm-border-light);
   flex-shrink: 0;
 }
@@ -131,11 +133,11 @@ function flip(): void { emit('flip') }
 }
 
 .answer-badge {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--tcm-success-text);
   background: var(--tcm-success-bg);
-  padding: 3px 14px;
+  padding: 2px 12px;
   border-radius: 100px;
   letter-spacing: 0.5px;
 }
@@ -145,27 +147,27 @@ function flip(): void { emit('flip') }
   color: var(--tcm-text-disabled);
 }
 
-/* Body — flexible, pads generously */
+/* Body */
 .flashcard-body {
   flex: 1;
-  padding: 40px 48px;
+  padding: 28px 36px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .flashcard-question {
-  font-size: 18px;
+  font-size: 17px;
   color: var(--tcm-text-primary);
-  line-height: 2;
+  line-height: 1.8;
   text-align: center;
   width: 100%;
 }
 
 .flashcard-answer {
-  font-size: 16px;
+  font-size: 15px;
   color: var(--tcm-text-primary);
-  line-height: 2;
+  line-height: 1.7;
   text-align: left;
   width: 100%;
 }
@@ -233,11 +235,11 @@ function flip(): void { emit('flip') }
 
 /* Mnemonic footer */
 .flashcard-mnemonic {
-  margin: 0 32px 24px;
-  padding: 14px 24px;
+  margin: 0 24px 20px;
+  padding: 12px 20px;
   background: var(--tcm-gold-bg);
   border: 1px solid var(--tcm-gold-border);
-  border-radius: 12px;
+  border-radius: 10px;
 }
 
 .mnemonic-label {

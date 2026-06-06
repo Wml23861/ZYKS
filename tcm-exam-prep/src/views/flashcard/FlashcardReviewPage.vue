@@ -173,7 +173,7 @@ watch(
 
 <style scoped>
 .page-flashcard-review {
-  max-width: 800px;
+  /* 宽度动态填充 */
 }
 
 .review-header {
