@@ -24,6 +24,19 @@ async function main() {
   await db.migrate.latest()
   console.log('[DB] 数据库迁移完成')
 
+  // 如果数据库为空，自动导入种子数据
+  const subjectCount = await db('subjects').count('* as cnt').first()
+  if ((subjectCount as { cnt: number }).cnt === 0) {
+    console.log('[DB] 检测到空数据库，正在导入初始数据...')
+    try {
+      await db.seed.run()
+      console.log('[DB] 初始数据导入完成')
+    } catch (err) {
+      console.error('[DB] 种子数据导入失败:', err)
+      console.error('[DB] 请手动运行: npx tsx run-seeds.mjs')
+    }
+  }
+
   // 确保默认管理员用户存在
   await authService.ensureDefaultUser()
 

@@ -8,3 +8,4 @@
 - [AI集成](project_ai.md) — DeepSeek AI老师、系统提示、前后端实现
 - [设计系统](project_design.md) — 国风典雅配色、字体、动画、主题
 - [部署配置](project_deploy.md) — Docker多阶段构建、Nginx反向代理、SSL、DEPLOY.md指南
+- [工作规则](workflow_rule.md) — 每次任务必须先检查并调用匹配的 Skill
