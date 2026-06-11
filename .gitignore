@@ -1,8 +1,8 @@
 node_modules/
 dist/
-*.db
 .vite/
 *.tsbuildinfo
 .DS_Store
 .env
 certbot/
+video/

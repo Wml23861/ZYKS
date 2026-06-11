@@ -8,13 +8,27 @@ const tag = (arr: string[]) => JSON.stringify(arr)
 
 const q = (
   id: string, type: string, grp: number, gid: string | null, subj: string, ch: string,
-  diff: number, stem: string, options: string[], ans: string, expl: string, tags: string[], ord = 0
-): QR => ({
-  id, question_type: type, is_group_root: grp, group_id: gid, subject_id: subj, chapter_id: ch,
-  section_id: '', knowledge_point_ids_json: '[]', difficulty: diff, exam_years_json: '[]',
-  question_stem: stem, options_json: opts(options), shared_options_json: null,
-  correct_answer: ans, explanation: expl, tags_json: tag(tags), order_in_group: ord
-})
+  diff: number, stem: string, options: string[], ans: string,
+  a1: string | string[], a2: string | string[], a3?: number | string[], a4?: number,
+): QR => {
+  let expl: string, tags: string[], shared: string | null = null, ord = 0
+  if (Array.isArray(a1)) {
+    shared = JSON.stringify(a1.map((t, i) => ({ key: String.fromCharCode(65 + i), text: t })))
+    expl = a2 as string
+    tags = (Array.isArray(a3) ? a3 : []) as string[]
+    ord = a4 || 0
+  } else {
+    expl = a1
+    tags = Array.isArray(a2) ? a2 : []
+    ord = (typeof a3 === 'number' ? a3 : 0)
+  }
+  return {
+    id, question_type: type, is_group_root: grp, group_id: gid, subject_id: subj, chapter_id: ch,
+    section_id: '', knowledge_point_ids_json: '[]', difficulty: diff, exam_years_json: '[]',
+    question_stem: stem, options_json: opts(options), shared_options_json: shared,
+    correct_answer: ans, explanation: expl, tags_json: tag(tags), order_in_group: ord,
+  }
+}
 
 export async function seed(knex: Knex): Promise<void> {
   const questions: QR[] = [

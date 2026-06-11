@@ -19,7 +19,7 @@ import { computed } from 'vue'
 
 const props = defineProps({
   variant: {
-    type: String as () => 'primary' | 'secondary' | 'outline' | 'text' | 'gold',
+    type: String as () => 'primary' | 'secondary' | 'outline' | 'text' | 'gold' | 'danger',
     default: 'primary',
   },
   size: {
@@ -124,6 +124,13 @@ const buttonClasses = computed(() => {
 }
 .tcm-btn--gold:hover:not(.tcm-btn--disabled) {
   background: var(--tcm-gold-700);
+}
+
+.tcm-btn--danger {
+  background: #dc2626; color: #fff; border: 1px solid #dc2626;
+}
+.tcm-btn--danger:hover:not(.tcm-btn--disabled) {
+  background: #b91c1c; border-color: #b91c1c;
 }
 
 .tcm-btn--block { width: 100%; }

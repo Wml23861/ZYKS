@@ -10,6 +10,7 @@ import { wrongQuestionRoutes } from './wrong-question.routes.js'
 import { noteRoutes } from './note.routes.js'
 import { pastExamRoutes } from './past-exam.routes.js'
 import { videoRoutes } from './video.routes.js'
+import { localVideoRoutes } from './local-video.routes.js'
 import { settingsRoutes } from './settings.routes.js'
 import { aiRoutes } from './ai.routes.js'
 import { realExamRoutes } from './real-exam.routes.js'
@@ -33,6 +34,7 @@ router.use('/', pastExamRoutes)   // /api/past-exams
 router.use('/', wrongQuestionRoutes) // /api/wrong-questions
 router.use('/real-exam', realExamRoutes)
 router.use('/', noteRoutes)        // /api/notes
+router.use('/', localVideoRoutes) // /api/video/local, /api/video/file (放在 videoRoutes 前面，避免被 requireAuth 拦截)
 router.use('/', videoRoutes)       // /api/videos
 router.use('/', settingsRoutes)    // /api/settings
 router.use('/ai', aiRoutes)        // /api/ai/chat

@@ -2,6 +2,7 @@ import { createApp } from './app.js'
 import { config } from './config/env.js'
 import { getDb } from './config/database.js'
 import { authService } from './services/auth.service.js'
+import { resumeProcessing } from './services/video-pipeline.js'
 import path from 'node:path'
 import fs from 'node:fs'
 import { fileURLToPath } from 'node:url'
@@ -33,12 +34,22 @@ async function main() {
       console.log('[DB] 初始数据导入完成')
     } catch (err) {
       console.error('[DB] 种子数据导入失败:', err)
-      console.error('[DB] 请手动运行: npx tsx run-seeds.mjs')
+      console.error('[DB] 请手动运行: npx tsx run-all-seeds.ts')
     }
   }
 
   // 确保默认管理员用户存在
   await authService.ensureDefaultUser()
+
+  // 恢复未完成的视频处理任务
+  try {
+    const resumed = await resumeProcessing()
+    if (resumed.length > 0) {
+      console.log(`[Pipeline] 恢复 ${resumed.length} 个未完成的处理任务`)
+    }
+  } catch (e) {
+    console.warn('[Pipeline] 恢复处理任务时出错:', e)
+  }
 
   const app = createApp()
   app.listen(config.PORT, () => {

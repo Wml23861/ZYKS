@@ -69,6 +69,12 @@ export const questionService = {
     return rows.map(mapQuestion)
   },
 
+  async countAll(): Promise<number> {
+    const db = getDb()
+    const row = await db('questions').count('* as cnt').first() as { cnt: number }
+    return row.cnt
+  },
+
   async findById(id: string) {
     const db = getDb()
     const row = await db<QuestionRow>('questions').where({ id }).first()

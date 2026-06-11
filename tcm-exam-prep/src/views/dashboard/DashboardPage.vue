@@ -446,7 +446,7 @@ onMounted(async () => {
     todayQuestionCount.value = todayWrong.length
 
     // Total questions
-    totalQuestions.value = (await qRepo.findAll()).length
+    totalQuestions.value = await qRepo.countAll()
 
     // Load flashcards and knowledge points for display enrichment
     try {

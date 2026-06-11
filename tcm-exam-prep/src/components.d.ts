@@ -39,6 +39,7 @@ declare module 'vue' {
     TcmBadge: typeof import('./components/ui/TcmBadge.vue')['default']
     TcmButton: typeof import('./components/ui/TcmButton.vue')['default']
     TcmCard: typeof import('./components/ui/TcmCard.vue')['default']
+    TcmConfirm: typeof import('./components/ui/TcmConfirm.vue')['default']
     TcmDivider: typeof import('./components/ui/TcmDivider.vue')['default']
     TcmEmpty: typeof import('./components/ui/TcmEmpty.vue')['default']
     TcmProgress: typeof import('./components/ui/TcmProgress.vue')['default']

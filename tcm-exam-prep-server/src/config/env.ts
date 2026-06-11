@@ -9,6 +9,7 @@ const envSchema = z.object({
   AI_API_KEY: z.string().optional(),
   AI_API_URL: z.string().optional(),
   AI_MODEL: z.string().optional(),
+  VIDEO_PATH: z.string().default('../../video'),
 })
 
 export const config = envSchema.parse({
@@ -19,4 +20,5 @@ export const config = envSchema.parse({
   AI_API_KEY: process.env.AI_API_KEY,
   AI_API_URL: process.env.AI_API_URL,
   AI_MODEL: process.env.AI_MODEL,
+  VIDEO_PATH: process.env.VIDEO_PATH,
 })

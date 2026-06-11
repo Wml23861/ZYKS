@@ -29,6 +29,16 @@ router.get('/', async (req, res, next) => {
   }
 })
 
+// GET /api/questions/count — 获取题目总数（无分页限制）
+router.get('/count', async (_req, res, next) => {
+  try {
+    const count = await questionService.countAll()
+    res.json({ success: true, data: { count } })
+  } catch (err) {
+    next(err)
+  }
+})
+
 // GET /api/questions/:id
 router.get('/:id', async (req, res, next) => {
   try {

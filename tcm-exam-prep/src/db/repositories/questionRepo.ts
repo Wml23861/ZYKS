@@ -6,6 +6,13 @@ export const questionRepo = {
     return apiGet<Question[]>('/api/questions', { limit: '1000' })
   },
 
+  async countAll(): Promise<number> {
+    try {
+      const res = await apiGet<{ count: number }>('/api/questions/count')
+      return res.count
+    } catch { return 0 }
+  },
+
   async findById(id: string): Promise<Question | undefined> {
     try { return await apiGet<Question>(`/api/questions/${id}`) } catch { return undefined }
   },
