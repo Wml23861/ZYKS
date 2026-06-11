@@ -18,6 +18,7 @@ import {
 import {
   speechToText,
   extractKeyAndDifficultPoints,
+  chunkedExtractKeyPoints,
   generateTranscriptAndSummary,
   matchKnowledgeToSubjects,
   generateQuizQuestions,
@@ -59,8 +60,23 @@ export interface PipelineProgress {
 export const pipelineEvents = new EventEmitter()
 pipelineEvents.setMaxListeners(50)
 
-// 正在处理的视频集合（防止重复处理）
+// 正在处理的视频集合 — 同视频不重复，不同视频最多 3 个并发
 const processingSet = new Set<string>()
+const MAX_CONCURRENT = 3
+
+// STT（whisper）步骤并发限制 — 模型加载占 ~500MB/进程，限制 2 个避免内存爆炸
+let sttRunning = 0
+const MAX_STT_CONCURRENT = 2
+async function waitForSttSlot(videoId: string, myGen: number): Promise<void> {
+  while (sttRunning >= MAX_STT_CONCURRENT) {
+    await new Promise(r => setTimeout(r, 3000))
+    if (!isCurrentGen(videoId, myGen)) throw new Error('STT_WAIT_CANCELLED')
+  }
+  sttRunning++
+}
+function releaseSttSlot(): void {
+  sttRunning = Math.max(0, sttRunning - 1)
+}
 
 // 代数计数器：每次 force 重处理时 +1，旧流程检测到过期后静默退出
 const generationMap = new Map<string, number>()
@@ -160,10 +176,23 @@ export async function processVideo(videoId: string, force: boolean = false): Pro
   // 记录本流程的代数
   const myGen = generationMap.get(videoId) || 0
 
-  // 防止重复处理
-  if (processingSet.has(videoId)) {
+  // 防重：同名视频已在处理且非强制，跳过
+  if (processingSet.has(videoId) && !force) {
     console.log(`[Pipeline] ${videoId} 正在处理中，跳过（如需强制重处理请使用 force=true）`)
     return
+  }
+
+  // 并发限制：最多 MAX_CONCURRENT 个视频同时处理（同名 force 不计）
+  if (!processingSet.has(videoId) && processingSet.size >= MAX_CONCURRENT) {
+    console.log(`[Pipeline] 当前 ${processingSet.size}/${MAX_CONCURRENT} 个视频处理中，${videoId} 排队等待...`)
+    // 轮询等待
+    while (processingSet.size >= MAX_CONCURRENT) {
+      await new Promise(r => setTimeout(r, 2000))
+      if (!isCurrentGen(videoId, myGen)) {
+        console.log(`[Pipeline] ${videoId} 排队中被取消`)
+        return
+      }
+    }
   }
 
   const video = await db('videos').where({ id: videoId }).first()
@@ -247,15 +276,26 @@ export async function processVideo(videoId: string, force: boolean = false): Pro
         segments: [],
       }
     } else {
-      updateDbProgress(videoId, 'transcribing', '语音转文字中', 15,
-        '正在使用语音识别转写视频内容（可能需要数分钟）...')
+      // STT 步骤限制并发（whisper 加载模型占 ~500MB 内存）
+      try {
+        updateDbProgress(videoId, 'transcribing', '等待语音识别资源...', 15,
+          '正在排队等待语音识别资源（最多 2 个并发）...')
+        await waitForSttSlot(videoId, myGen)
+      } catch { return }
 
-      sttResult = await speechToText(audioPath, (msg: string, pct: number) => {
-        // STT 步骤: 10% → 65%，whisper 原始 0-100% 线性映射
-        const overallPct = 10 + Math.floor(pct * 0.55)
-        console.log(`[Pipeline-PROGRESS] whisper=${pct}% → pipeline=${overallPct}%, step=transcribing`)
-        updateDbProgress(videoId, 'transcribing', msg, overallPct)
-      })
+      try {
+        updateDbProgress(videoId, 'transcribing', '语音转文字中', 15,
+          '正在使用语音识别转写视频内容（可能需要数分钟）...')
+
+        sttResult = await speechToText(audioPath, (msg: string, pct: number) => {
+          // STT 步骤: 10% → 65%，whisper 原始 0-100% 线性映射
+          const overallPct = 10 + Math.floor(pct * 0.55)
+          console.log(`[Pipeline-PROGRESS] whisper=${pct}% → pipeline=${overallPct}%, step=transcribing`)
+          updateDbProgress(videoId, 'transcribing', msg, overallPct)
+        })
+      } finally {
+        releaseSttSlot()
+      }
 
       // 检查是否有新流程启动（旧流程被取消后静默退出）
       if (!isCurrentGen(videoId, myGen)) {
@@ -289,9 +329,13 @@ export async function processVideo(videoId: string, force: boolean = false): Pro
         difficultPoints: safeParseJson<ExtractedKnowledge['difficultPoints']>(video.extracted_difficult_points_json || '[]', []),
       }
     } else {
-      extraction = await extractKeyAndDifficultPoints(
+      // 长文稿自动分块分析（短文稿直接走原函数）
+      extraction = await chunkedExtractKeyPoints(
         sttResult.correctedTranscript,
         sttResult.segments,
+        (msg: string, pct: number) => {
+          updateDbProgress(videoId, 'extracting', msg, 72 + Math.floor(pct * 0.12))
+        },
       )
 
       if (!isCurrentGen(videoId, myGen)) { console.log(`[Pipeline] ${videoId} 已过期，退出`); return }
@@ -430,6 +474,10 @@ export async function resumeProcessing(): Promise<string[]> {
 
   const resumed: string[] = []
   for (const v of incomplete) {
+    if (processingSet.size >= MAX_CONCURRENT) {
+      console.log(`[Pipeline] 并发已满 (${MAX_CONCURRENT})，剩余视频稍后手动处理`)
+      break
+    }
     console.log(`[Pipeline] 恢复处理: ${v.title} (${v.processing_status})`)
     processVideo(v.id as string).catch((err) => {
       console.error(`[Pipeline] 恢复处理失败: ${v.id}`, err)

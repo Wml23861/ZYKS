@@ -164,7 +164,10 @@
                     {{ formatDuration(dp.timestamp) }}
                   </span>
                   <strong class="kp-title">{{ dp.title }}</strong>
-                  <TcmTag type="warning" size="sm">重难点</TcmTag>
+                  <TcmTag v-if="dp.type === '重点'" type="high-frequency" size="sm">重点</TcmTag>
+                  <TcmTag v-else-if="dp.type === '难点'" type="warning" size="sm">难点</TcmTag>
+                  <TcmTag v-else-if="dp.type === '考点'" type="key" size="sm">考点</TcmTag>
+                  <TcmTag v-else type="warning" size="sm">重难点</TcmTag>
                 </div>
                 <p class="kp-content">{{ dp.content }}</p>
               </div>

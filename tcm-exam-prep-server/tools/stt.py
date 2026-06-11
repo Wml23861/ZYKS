@@ -29,6 +29,7 @@ def main():
     parser.add_argument("--device", default="cpu", help="计算设备 (cpu/cuda)")
     parser.add_argument("--compute_type", default="int8", help="推理精度 (int8/float16/float32)")
     parser.add_argument("--threads", type=int, default=0, help="CPU 线程数 (0=自动)")
+    parser.add_argument("--beam-size", type=int, default=1, help="Beam search 宽度 (1=最快)")
     parser.add_argument("--no-vad", action="store_true", help="禁用 VAD 加速处理")
     args = parser.parse_args()
 
@@ -62,10 +63,11 @@ def main():
     start_time = time.time()
 
     try:
+        bs = args.beam_size
         transcribe_opts = {
             "language": args.language,
-            "beam_size": 5,
-            "best_of": 5,
+            "beam_size": bs,
+            "best_of": bs,
         }
         if not args.no_vad:
             transcribe_opts["vad_filter"] = True

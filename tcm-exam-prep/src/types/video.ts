@@ -95,6 +95,8 @@ export interface VideoKeyPoint {
   content: string
   /** 视频中的时间戳 (秒) */
   timestamp: number
+  /** 类型标注: 重点/难点/考点（仅重难点使用） */
+  type?: '重点' | '难点' | '考点'
 }
 
 /** AI 科目匹配结果 */

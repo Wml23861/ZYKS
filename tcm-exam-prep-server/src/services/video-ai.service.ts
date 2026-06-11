@@ -167,9 +167,10 @@ async function runWhisper(
   // faster-whisper 模型名 (非 GGML 格式)
   // small: 已预下载，CPU+int8 RTF≈1.1x，配合 DeepSeek 纠错准确度足够
   // 可选: tiny(极快) / medium(平衡) / large-v3(最准，需手动下载模型)
-  const modelName = process.env.WHISPER_MODEL_NAME || 'tiny'
+  const modelName = process.env.WHISPER_MODEL_NAME || 'small'
   const device = process.env.WHISPER_DEVICE || 'cpu'
   const computeType = process.env.WHISPER_COMPUTE_TYPE || 'int8'
+  const beamSize = process.env.WHISPER_BEAM_SIZE || '1'
 
   if (!fs.existsSync(sttScript)) {
     throw new Error(`STT 脚本不存在: ${sttScript}`)
@@ -198,6 +199,7 @@ async function runWhisper(
       '--language', 'zh',
       '--device', device,
       '--compute_type', computeType,
+      '--beam-size', beamSize,
     ], {
       env: { ...process.env, PYTHONIOENCODING: 'utf-8' },
     })
@@ -419,7 +421,73 @@ export interface ExtractedKnowledge {
     title: string
     content: string
     timestamp: number
+    type: '重点' | '难点' | '考点'
   }[]
+}
+
+/** 分块分析长文稿：切成小段 → 并行提取 → 合并去重 */
+export async function chunkedExtractKeyPoints(
+  correctedTranscript: string,
+  segments: { start: number; end: number; text: string }[],
+  onProgress?: (msg: string, pct: number) => void,
+): Promise<ExtractedKnowledge> {
+  const MAX_CHUNK_CHARS = 3500
+  if (correctedTranscript.length <= MAX_CHUNK_CHARS) {
+    return extractKeyAndDifficultPoints(correctedTranscript, segments)
+  }
+
+  // 按字符数切块
+  const chunks: string[] = []
+  const chunkSegments: typeof segments[] = []
+  let currentChunk = ''
+  let currentSegs: typeof segments = []
+  for (const seg of segments) {
+    if (currentChunk.length + seg.text.length > MAX_CHUNK_CHARS && currentChunk.length > 500) {
+      chunks.push(currentChunk)
+      chunkSegments.push(currentSegs)
+      currentChunk = ''
+      currentSegs = []
+    }
+    currentChunk += seg.text
+    currentSegs.push(seg)
+  }
+  if (currentChunk.length > 0) { chunks.push(currentChunk); chunkSegments.push(currentSegs) }
+
+  console.log(`[AI] 文稿 ${correctedTranscript.length} 字符，分 ${chunks.length} 块提取知识点`)
+
+  // 并行提取（最多 3 个并发）
+  const allKeyPoints: ExtractedKnowledge['keyPoints'] = []
+  const allDifficultPoints: ExtractedKnowledge['difficultPoints'] = []
+  const CONCURRENCY = 3
+
+  for (let i = 0; i < chunks.length; i += CONCURRENCY) {
+    const batch = chunks.slice(i, i + CONCURRENCY).map((chunk, bi) => {
+      const idx = i + bi
+      onProgress?.(`AI 分析第 ${idx + 1}/${chunks.length} 段`, 72 + Math.floor((idx / chunks.length) * 10))
+      return extractKeyAndDifficultPoints(chunk, chunkSegments[idx] || [])
+    })
+    const results = await Promise.all(batch)
+    for (const r of results) {
+      allKeyPoints.push(...r.keyPoints)
+      allDifficultPoints.push(...r.difficultPoints)
+    }
+  }
+
+  // 去重：标题相似度 > 80% 的合并
+  const dedupe = (items: { title: string; content: string; timestamp: number }[]) => {
+    const seen = new Set<string>()
+    return items.filter(item => {
+      const key = item.title.slice(0, 6)
+      if (seen.has(key)) return false
+      seen.add(key)
+      return true
+    })
+  }
+
+  const keyPoints = dedupe(allKeyPoints)
+  const difficultPoints = dedupe(allDifficultPoints)
+  console.log(`[AI] 合并后: ${keyPoints.length} 知识点, ${difficultPoints.length} 重难点 (原始 ${allKeyPoints.length}/${allDifficultPoints.length})`)
+  return { keyPoints, difficultPoints }
 }
 
 export async function extractKeyAndDifficultPoints(
@@ -432,25 +500,32 @@ export async function extractKeyAndDifficultPoints(
     `[${formatTime(s.start)}-${formatTime(s.end)}] ${s.text}`
   ).join('\n')
 
-  const prompt = `你是中医执业医师考试辅导专家。请从以下中医教学视频文稿中提取知识点和重难点。
+  const prompt = `你是中医执业医师考试辅导专家。请从以下中医教学视频文稿中尽可能多地提取知识点和重难点，不要遗漏任何内容。
 
 要求：
-1. **知识点**：提取所有重要的中医知识点，每个知识点包含标题、详细内容说明、对应时间戳
-2. **重难点**：标注出考试中的重点和难点内容，说明为什么重要/难，对应时间戳
-3. 时间戳精确到秒，必须对应原文稿中的时间
-4. 用中医专业术语准确表述
-5. 知识点和重难点可以重复（某个内容可能既是知识点又是重难点）
+1. **知识点**：提取文稿中出现的每一个中医知识点，每个必须包含：
+   - title: 精确的知识点名称
+   - content: 详细说明（定义、要点、记忆口诀、考试常见问法），字数不少于 30 字
+   - timestamp: 对应视频时间
+
+2. **重难点**：必须有 type 字段标注类型（"重点"/"难点"/"考点"），且每个必须包含 content 说明原因：
+   - "重点" = 执业医师考试必考的高频内容
+   - "难点" = 学生普遍不易理解/掌握的内容
+   - "考点" = 历年真题出现过的考察点
+
+3. 从文稿中提取全部内容，不要因为篇幅而删减，越多越好
+4. 时间戳必须精确对应文稿中的时间
 
 带时间戳的文稿：
 ${segmentsText}
 
-请以严格 JSON 格式返回（不要Markdown代码块包裹）：
+请返回 JSON（不要 Markdown 代码块）：
 {
   "keyPoints": [
-    {"title": "知识点标题", "content": "详细说明（需要记忆什么、考试怎么考）", "timestamp": 120}
+    {"title": "知识点名", "content": "详细说明...", "timestamp": 120}
   ],
   "difficultPoints": [
-    {"title": "重难点标题", "content": "为什么难、如何突破、考试易错点", "timestamp": 180}
+    {"title": "重难点名", "content": "为什么重要/难/常考", "timestamp": 180, "type": "重点"}
   ]
 }`
 
@@ -463,18 +538,34 @@ ${segmentsText}
   const jsonStr = response.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim()
   const jsonMatch = jsonStr.match(/\{[\s\S]*\}/)
   if (!jsonMatch) {
-    throw new Error(`知识点提取结果解析失败: ${response.slice(0, 300)}`)
+    console.warn('[AI] 知识点提取 JSON 解析失败，返回空')
+    return { keyPoints: [], difficultPoints: [] }
   }
 
   try {
     return JSON.parse(jsonMatch[0])
   } catch {
-    // 尝试修复常见 JSON 问题
-    const cleaned = jsonMatch[0]
-      .replace(/,\s*}/g, '}')
-      .replace(/,\s*]/g, ']')
-    return JSON.parse(cleaned)
+    const cleaned = recoverTruncatedJson(jsonMatch[0])
+    try { return JSON.parse(cleaned) } catch {
+      console.warn('[AI] 知识点提取 JSON 修复失败，返回空')
+      return { keyPoints: [], difficultPoints: [] }
+    }
   }
+}
+
+/** 修复被截断的 JSON：补全缺失的括号 */
+function recoverTruncatedJson(json: string): string {
+  let cleaned = json.replace(/,\s*}/g, '}').replace(/,\s*]/g, ']')
+  let braceCount = 0, bracketCount = 0
+  for (const ch of cleaned) {
+    if (ch === '{') braceCount++
+    else if (ch === '}') braceCount--
+    else if (ch === '[') bracketCount++
+    else if (ch === ']') bracketCount--
+  }
+  while (braceCount > 0) { cleaned += '}'; braceCount-- }
+  while (bracketCount > 0) { cleaned += ']'; bracketCount-- }
+  return cleaned
 }
 
 // ═══════════════════════════════════════════
@@ -521,16 +612,24 @@ ${correctedTranscript}
   const jsonStr = response.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim()
   const jsonMatch = jsonStr.match(/\{[\s\S]*\}/)
   if (!jsonMatch) {
-    throw new Error(`总结分析结果解析失败: ${response.slice(0, 300)}`)
+    console.warn('[AI] 总结分析 JSON 解析失败，使用原始文稿')
+    return { transcript: correctedTranscript, summary: '## 总结\n\n（AI 生成失败，请重试）' }
   }
 
   try {
     return JSON.parse(jsonMatch[0])
   } catch {
-    const cleaned = jsonMatch[0]
-      .replace(/,\s*}/g, '}')
-      .replace(/,\s*]/g, ']')
-    return JSON.parse(cleaned)
+    const cleaned = recoverTruncatedJson(jsonMatch[0])
+    try {
+      const partial = JSON.parse(cleaned)
+      return {
+        transcript: partial.transcript || correctedTranscript,
+        summary: partial.summary || '（总结部分被截断，请重试）',
+      }
+    } catch {
+      console.warn('[AI] 总结分析 JSON 修复失败，使用原始文稿')
+      return { transcript: correctedTranscript, summary: '## 总结\n\n（AI 生成失败，请重试）' }
+    }
   }
 }
 
@@ -616,7 +715,14 @@ ${kpText}
       manual: false,
     }))
   } catch {
-    return keyPoints.map((_, i) => ({
+    try {
+      const cleaned = recoverTruncatedJson(jsonMatch[0])
+      const matches = JSON.parse(cleaned) as SubjectMatchResult[]
+      return matches.map(m => ({
+        ...m, videoKpTitle: keyPoints[m.videoKpIndex]?.title || '', chapterTitle: '', manual: false,
+      }))
+    } catch {
+      return keyPoints.map((_, i) => ({
       videoKpIndex: i,
       videoKpTitle: keyPoints[i].title,
       subjectId: '',
@@ -625,6 +731,7 @@ ${kpText}
       confidence: 0,
       manual: false,
     }))
+  }
   }
 }
 
@@ -719,7 +826,7 @@ export async function generateQuizQuestions(
       const rows = await db('questions')
         .whereIn('subject_id', subjectIds)
         .select('id', 'question_stem', 'options_json', 'correct_answer', 'explanation', 'difficulty', 'subject_id', 'chapter_id')
-        .limit(40)
+        .limit(60)
       rows.forEach(addRow)
       console.log(`[AI] 科目匹配: ${rows.length} 道`)
     }
@@ -731,10 +838,10 @@ export async function generateQuizQuestions(
     const keywords = [...new Set(
       kpText.replace(/[《》""''「」『』、【】,.，。；;：:！!？?\s]+/g, ' ').split(' ')
         .filter(w => w.length >= 2 && w.length <= 8 && !/^\d+$/.test(w))
-    )].slice(0, 30)
+    )].slice(0, 50)
 
     for (const kw of keywords) {
-      if (matchedIds.size >= 50) break
+      if (matchedIds.size >= 80) break
       try {
         const rows = await db('questions')
           .where(function(this: any) {
@@ -754,8 +861,9 @@ export async function generateQuizQuestions(
     console.warn('[AI] 题库匹配失败:', (e as Error).message)
   }
 
-  // 3) AI 生成补充（每次最多 5 道，分段生成防 JSON 截断）
-  const targetTotal = 20
+  // 3) AI 生成补充 — 按文稿长度缩放目标
+  const totalLen = (summary + transcript).length
+  const targetTotal = Math.min(60, Math.max(10, 10 + Math.floor(totalLen / 2000) * 10))
   const toGenerate = Math.max(0, targetTotal - allQuestions.length)
   if (_quizCallCount <= 1 && toGenerate > 0) {
     const genBatches = Math.ceil(toGenerate / 5)
