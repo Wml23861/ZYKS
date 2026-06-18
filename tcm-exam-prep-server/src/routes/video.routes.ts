@@ -258,10 +258,23 @@ router.post('/videos/:id/transcode', async (req, res, next) => {
     const transcodedUrl = `/api/video/file/transcoded/${cacheName}`
 
     const { spawn } = await import('node:child_process')
+    const fsSync = await import('node:fs')
+    const nodePath = await import('node:path')
     let ffmpegPath = 'ffmpeg'
     try {
       const m = await import('@ffmpeg-installer/ffmpeg')
-      ffmpegPath = (m as any).default?.path || (m as any).path || 'ffmpeg'
+      const bundledPath = (m as any).default?.path || (m as any).path || 'ffmpeg'
+      // Windows 下 node_modules 中的 exe 可能被锁定（EBUSY），复制到 staging 目录
+      if (process.platform === 'win32' && typeof bundledPath === 'string') {
+        const stagingDir = nodePath.default.resolve(config.DB_PATH, '..', 'ffmpeg-staging')
+        fsSync.default.mkdirSync(stagingDir, { recursive: true })
+        ffmpegPath = nodePath.default.join(stagingDir, 'ffmpeg.exe')
+        if (!fsSync.default.existsSync(ffmpegPath) || fsSync.default.statSync(ffmpegPath).size !== fsSync.default.statSync(bundledPath).size) {
+          fsSync.default.copyFileSync(bundledPath, ffmpegPath)
+        }
+      } else {
+        ffmpegPath = bundledPath
+      }
     } catch { /* use PATH */ }
 
     const doTranscode = (useCopy: boolean) => {

@@ -18,7 +18,7 @@ type: project
 
 ### STT 引擎
 - **当前**: Python `faster-whisper` + CTranslate2, tiny 模型, int8 量化
-- **Python 路径**: `F:/Program Files (x86)/python/python.exe`
+- **Python 路径**: `C:/Users/Administrator/AppData/Local/Programs/Python/Python313/python.exe`（`findPython()` 自动扫描 `%LOCALAPPDATA%/Programs/Python/` 目录）
 - **脚本**: `tools/stt.py`
 - **RTF**: tiny 模型 ~0.6x（比 whisper.cpp 快 4-5 倍）
 - **已删除**: whisper.cpp 全部二进制 + ggml-large-v3-turbo.bin (1.6GB)

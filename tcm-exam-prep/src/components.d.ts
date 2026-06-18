@@ -45,6 +45,5 @@ declare module 'vue' {
     TcmProgress: typeof import('./components/ui/TcmProgress.vue')['default']
     TcmSkeleton: typeof import('./components/ui/TcmSkeleton.vue')['default']
     TcmTag: typeof import('./components/ui/TcmTag.vue')['default']
-    TcmToast: typeof import('./components/ui/TcmToast.vue')['default']
   }
 }

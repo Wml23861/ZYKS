@@ -133,13 +133,25 @@ function findPython(): string {
   if (process.env.PYTHON_BIN && fs.existsSync(process.env.PYTHON_BIN)) {
     return process.env.PYTHON_BIN
   }
-  // 常见安装位置
+  // 常见安装位置（固定候选）
   const candidates = [
     'F:/Program Files (x86)/python/python.exe',
-    'C:/Program Files/Python311/python.exe',
+    'C:/Python313/python.exe',
+    'C:/Python312/python.exe',
     'C:/Python311/python.exe',
-    path.resolve(process.env.LOCALAPPDATA || '', 'Programs/Python/Python311/python.exe'),
   ]
+  // %LOCALAPPDATA%/Programs/Python/ 下的 Python 版本目录 (如 Python313, Python312...)
+  const localPythonDir = path.resolve(process.env.LOCALAPPDATA || '', 'Programs/Python')
+  if (fs.existsSync(localPythonDir)) {
+    try {
+      const dirs = fs.readdirSync(localPythonDir)
+      for (const d of dirs) {
+        if (d.startsWith('Python')) {
+          candidates.push(path.join(localPythonDir, d, 'python.exe'))
+        }
+      }
+    } catch { /* 读取失败则跳过 */ }
+  }
   for (const c of candidates) {
     if (fs.existsSync(c)) return c
   }
@@ -303,7 +315,39 @@ function chunkSegments(
   return chunks
 }
 
-/** 纠错单批文本 */
+/** 从 DeepSeek 响应中解析行格式： [MM:SS-MM:SS] 文本 */
+function parseLineBasedCorrection(
+  response: string,
+  originalSegments: { start: number; end: number; text: string }[],
+): { start: number; end: number; text: string }[] {
+  const lineRegex = /\[(\d{1,3}):(\d{2})\s*[-–—]\s*(\d{1,3}):(\d{2})\]\s*(.+)/g
+  const parsed: { timeStart: number; timeEnd: number; text: string }[] = []
+  let m: RegExpExecArray | null
+  while ((m = lineRegex.exec(response)) !== null) {
+    parsed.push({
+      timeStart: parseInt(m[1]) * 60 + parseInt(m[2]),
+      timeEnd: parseInt(m[3]) * 60 + parseInt(m[4]),
+      text: m[5].trim(),
+    })
+  }
+  if (parsed.length === 0) return originalSegments
+  // 数量一致则一一对应
+  if (parsed.length === originalSegments.length) {
+    return originalSegments.map((seg, i) => ({ ...seg, text: parsed[i].text }))
+  }
+  // 否则按时间戳最近匹配
+  return originalSegments.map(seg => {
+    let best = parsed[0]
+    let bestDiff = Math.abs(best.timeStart - seg.start) + Math.abs(best.timeEnd - seg.end)
+    for (const p of parsed) {
+      const d = Math.abs(p.timeStart - seg.start) + Math.abs(p.timeEnd - seg.end)
+      if (d < bestDiff) { best = p; bestDiff = d }
+    }
+    return { ...seg, text: best.text }
+  })
+}
+
+/** 纠错单批文本 — 使用行格式避免 JSON 转义问题 */
 async function correctOneBatch(
   batchSegments: { start: number; end: number; text: string }[],
   batchIndex: number,
@@ -312,43 +356,49 @@ async function correctOneBatch(
   const rawText = batchSegments.map(s => `[${formatTime(s.start)}-${formatTime(s.end)}] ${s.text}`).join('\n')
   const batchLabel = totalBatches > 1 ? `（第 ${batchIndex + 1}/${totalBatches} 批）` : ''
 
-  const prompt = `你是中医术语校正专家。以下是从中医教学视频中通过语音识别转写的文本${batchLabel}，存在同音字、术语识别错误等问题。
+  const prompt = `你是中医术语校正专家。以下是从中医教学视频中通过语音识别转写的文本${batchLabel}，没有标点符号，需要全面恢复。
 
-请逐段纠正：
+请逐段纠正并添加标点：
 1. 将错误的同音词替换为正确的中医术语（如"黄起"→"黄芪"、"脉象服"→"脉象浮"）
-2. 修正标点符号和断句
-3. 保持时间戳格式不变
+2. **重要：为每段补全标点符号（逗号、句号、顿号、分号、冒号、问号、感叹号等），让文本通顺可读**
+3. 合理断句——长句适当拆分，避免整段连在一起
+4. 每段一行，格式严格保持：[MM:SS-MM:SS] 纠正后的文本内容
+5. 不要添加任何开头语、结尾语或解释，直接从第一段时间戳开始输出
 
 原始转写：
-${rawText}
-
-请只返回 JSON，格式如下（不要 Markdown 代码块）：
-{"segments": [{"start": 0, "end": 10, "text": "纠正后文本"}, ...]}`
+${rawText}`
 
   try {
     const response = await callDeepSeek([
-      { role: 'system', content: '你是中医语音识别校正专家。只返回 JSON，不要额外解释。' },
+      { role: 'system', content: '你是中医语音识别校正专家。任务：1)纠正术语错误 2)补全标点符号（逗号、句号、顿号等）3)合理断句。只输出校正后的文本行，每行格式：[MM:SS-MM:SS] 文本内容。不要任何额外输出。' },
       { role: 'user', content: prompt },
-    ], 4096, 0.1)
+    ], 8192, 0.1)
 
-    const jsonMatch = response.replace(/```json\s*/g, '').replace(/```\s*/g, '').match(/\{[\s\S]*\}/)
-    if (!jsonMatch) {
-      console.warn(`[STT] 第${batchIndex+1}批校正结果无 JSON，使用原始文本`)
-      return batchSegments
+    // 去除可能的 markdown 代码块包裹
+    const clean = response.replace(/```[\s\S]*?\n/g, '').replace(/```/g, '').trim()
+    const result = parseLineBasedCorrection(clean, batchSegments)
+
+    if (result !== batchSegments && result.length > 0) {
+      console.log(`[STT] 第${batchIndex + 1}批行格式: ${result.length} 段校正成功`)
+      return result
     }
 
-    try {
-      const result = JSON.parse(jsonMatch[0])
-      return result.segments || batchSegments
-    } catch {
-      // 尝试修复截断的 JSON
-      let cleaned = jsonMatch[0].replace(/,\s*}/g, '}').replace(/,\s*]/g, ']')
-      if (!cleaned.endsWith('}')) cleaned += ']}'
-      const result = JSON.parse(cleaned)
-      return result.segments || batchSegments
+    // 回退：尝试 JSON 格式
+    const jsonMatch = clean.match(/\{[\s\S]*\}/)
+    if (jsonMatch) {
+      try {
+        const parsed = JSON.parse(recoverTruncatedJson(jsonMatch[0]))
+        if (parsed.segments?.length) {
+          console.log(`[STT] 第${batchIndex + 1}批 JSON 回退: ${parsed.segments.length} 段`)
+          return parsed.segments
+        }
+      } catch { /* JSON 回退也失败 */ }
     }
+
+    console.warn(`[STT] 第${batchIndex+1}批解析失败，使用原始文本 (${batchSegments.length} 段)`)
+    return batchSegments
   } catch (e) {
-    console.warn(`[STT] 第${batchIndex+1}批校正失败:`, (e as Error).message?.slice(0, 80))
+    console.warn(`[STT] 第${batchIndex+1}批校正异常:`, (e as Error).message?.slice(0, 80))
     return batchSegments
   }
 }
@@ -361,7 +411,7 @@ async function correctTranscriptWithDeepSeek(rawSegments: { start: number; end: 
   const MAX_CHARS_PER_BATCH = 3000
   if (rawText.length <= MAX_CHARS_PER_BATCH) {
     const corrected = await correctOneBatch(rawSegments, 0, 1)
-    const correctedText = corrected.map(s => s.text).join('')
+    const correctedText = corrected.map(s => s.text).join('\n')
     return { rawTranscript: rawText, correctedTranscript: correctedText, segments: corrected }
   }
 
@@ -375,7 +425,7 @@ async function correctTranscriptWithDeepSeek(rawSegments: { start: number; end: 
     allCorrected.push(...corrected)
   }
 
-  const correctedText = allCorrected.map(s => s.text).join('')
+  const correctedText = allCorrected.map(s => s.text).join('\n')
   console.log(`[STT] 纠错完成，${allCorrected.length} 个分段`)
   return { rawTranscript: rawText, correctedTranscript: correctedText, segments: allCorrected }
 }
@@ -474,7 +524,7 @@ export async function chunkedExtractKeyPoints(
   }
 
   // 去重：标题相似度 > 80% 的合并
-  const dedupe = (items: { title: string; content: string; timestamp: number }[]) => {
+  const dedupe = <T extends { title: string; content: string; timestamp: number }>(items: T[]) => {
     const seen = new Set<string>()
     return items.filter(item => {
       const key = item.title.slice(0, 6)
@@ -543,21 +593,64 @@ ${segmentsText}
   }
 
   try {
-    return JSON.parse(jsonMatch[0])
+    const raw = JSON.parse(jsonMatch[0])
+    return sanitizeExtractionResult(raw)
   } catch {
     const cleaned = recoverTruncatedJson(jsonMatch[0])
-    try { return JSON.parse(cleaned) } catch {
+    try {
+      const raw = JSON.parse(cleaned)
+      return sanitizeExtractionResult(raw)
+    } catch {
       console.warn('[AI] 知识点提取 JSON 修复失败，返回空')
       return { keyPoints: [], difficultPoints: [] }
     }
   }
 }
 
-/** 修复被截断的 JSON：补全缺失的括号 */
+/** 清理提取结果中的非法 timestamp */
+function sanitizeExtractionResult(raw: Record<string, unknown>): ExtractedKnowledge {
+  const kp = (Array.isArray(raw.keyPoints) ? raw.keyPoints : []) as Record<string, unknown>[]
+  const dp = (Array.isArray(raw.difficultPoints) ? raw.difficultPoints : []) as Record<string, unknown>[]
+  return {
+    keyPoints: kp.map(k => ({
+      title: String(k.title || ''),
+      content: String(k.content || ''),
+      timestamp: sanitizeTimestamp(k.timestamp),
+    })),
+    difficultPoints: dp.map(d => ({
+      title: String(d.title || ''),
+      content: String(d.content || ''),
+      timestamp: sanitizeTimestamp(d.timestamp),
+      type: (d.type === '重点' || d.type === '难点' || d.type === '考点') ? d.type : '考点',
+    })),
+  }
+}
+
+/** 修复被截断或含转义问题的 JSON */
 function recoverTruncatedJson(json: string): string {
-  let cleaned = json.replace(/,\s*}/g, '}').replace(/,\s*]/g, ']')
+  let cleaned = json
+  // 1. 移除尾随逗号
+  cleaned = cleaned.replace(/,\s*}/g, '}').replace(/,\s*]/g, ']')
+  // 2. 修复未闭合的字符串：找到最后一个 \" 且其后的字符串没有闭合引号
+  //    查找模式: "key": "value 后面缺少闭合引号
+  const lastQuoteIdx = cleaned.lastIndexOf('"')
+  if (lastQuoteIdx > 0) {
+    // 检查最后一个引号之后的字符，如果引号在字符串中间（非结构位置）
+    const after = cleaned.slice(lastQuoteIdx + 1)
+    // 如果后面没有 : , } ] 等 JSON 结构字符，说明字符串被截断
+    if (!/^\s*[:\},\]]/.test(after) && !after.includes('"')) {
+      cleaned = cleaned.slice(0, lastQuoteIdx + 1) + '"}'
+    }
+  }
+  // 3. 统计并补全括号
   let braceCount = 0, bracketCount = 0
-  for (const ch of cleaned) {
+  let inString = false, escaped = false
+  for (let i = 0; i < cleaned.length; i++) {
+    const ch = cleaned[i]
+    if (escaped) { escaped = false; continue }
+    if (ch === '\\') { escaped = true; continue }
+    if (ch === '"') { inString = !inString; continue }
+    if (inString) continue
     if (ch === '{') braceCount++
     else if (ch === '}') braceCount--
     else if (ch === '[') bracketCount++
@@ -565,6 +658,8 @@ function recoverTruncatedJson(json: string): string {
   }
   while (braceCount > 0) { cleaned += '}'; braceCount-- }
   while (bracketCount > 0) { cleaned += ']'; bracketCount-- }
+  // 4. 如果字符串仍未闭合，添加闭合引号
+  if (inString) cleaned += '"'
   return cleaned
 }
 
@@ -582,54 +677,66 @@ export async function generateTranscriptAndSummary(
   keyPoints: { title: string; content: string; timestamp: number }[],
   difficultPoints: { title: string; content: string; timestamp: number }[],
 ): Promise<SummaryResult> {
-  console.log('[AI] 第2次调用: 生成全文稿和总结分析...')
+  console.log('[AI] 第2次调用: 生成总结分析...')
 
-  const kpList = keyPoints.map((kp, i) => `${i + 1}. [${formatTime(kp.timestamp)}] ${kp.title}`).join('\n')
-  const dpList = difficultPoints.map((dp, i) => `${i + 1}. [${formatTime(dp.timestamp)}] ${dp.title}`).join('\n')
+  const kpList = keyPoints.map((kp, i) => `${i + 1}. [${formatTime(kp.timestamp)}] ${kp.title}: ${kp.content}`).join('\n')
+  const dpList = difficultPoints.map((dp, i) => `${i + 1}. [${formatTime(dp.timestamp)}] ${dp.title}: ${dp.content}`).join('\n')
 
-  const prompt = `你是中医教学内容的整理专家。根据以下信息，生成完整的教学文稿和总结分析。
+  // 截取文稿前部给 AI 参考（避免 token 超限）
+  const transcriptExcerpt = correctedTranscript.slice(0, 4000)
+  const excerptNote = correctedTranscript.length > 4000
+    ? `（文稿共 ${correctedTranscript.length} 字符，以下为前 4000 字符摘要）`
+    : ''
 
-已提取的知识点：
+  const prompt = `你是中医教学内容的整理专家。根据以下信息，生成综合总结分析。
+
+已提取的核心知识点：
 ${kpList || '（暂无）'}
 
-已提取的重难点：
+已提取的重点难点：
 ${dpList || '（暂无）'}
 
-原始文稿（已校正）：
-${correctedTranscript}
+教学文稿${excerptNote}：
+${transcriptExcerpt}
 
-请以 JSON 格式返回（不要Markdown代码块）：
-{
-  "transcript": "整理后的完整教学文稿（分段清晰、标点正确、术语准确，方便学员阅读复习）",
-  "summary": "综合总结分析，用 Markdown 格式，包含：\\n## 内容概要\\n（一两句话概括）\\n\\n## 核心知识点\\n（列举本章节最核心的3-8个知识点）\\n\\n## 重点难点解析\\n（详细分析考试重点和难点）\\n\\n## 学习建议\\n（针对本视频内容的学习方法和记忆技巧）\\n\\n## 考试提示\\n（相关考点和出题方向）"
-}`
+请直接输出 Markdown 格式的总结分析（不要 JSON 包裹），包含以下结构：
 
-  const response = await callDeepSeek([
-    { role: 'system', content: '你是中医教学内容整理专家。只返回 JSON，不要额外解释。' },
-    { role: 'user', content: prompt },
-  ], 8192, 0.5)
+## 内容概要
+（一两句话概括视频核心内容）
 
-  const jsonStr = response.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim()
-  const jsonMatch = jsonStr.match(/\{[\s\S]*\}/)
-  if (!jsonMatch) {
-    console.warn('[AI] 总结分析 JSON 解析失败，使用原始文稿')
-    return { transcript: correctedTranscript, summary: '## 总结\n\n（AI 生成失败，请重试）' }
-  }
+## 核心知识点
+（列举最核心的3-8个知识点，每个用一两句话说明）
+
+## 重点难点解析
+（详细分析考试重点和难点）
+
+## 学习建议
+（针对本视频内容的学习方法和记忆技巧）
+
+## 考试提示
+（相关考点和出题方向）`
 
   try {
-    return JSON.parse(jsonMatch[0])
-  } catch {
-    const cleaned = recoverTruncatedJson(jsonMatch[0])
-    try {
-      const partial = JSON.parse(cleaned)
-      return {
-        transcript: partial.transcript || correctedTranscript,
-        summary: partial.summary || '（总结部分被截断，请重试）',
-      }
-    } catch {
-      console.warn('[AI] 总结分析 JSON 修复失败，使用原始文稿')
-      return { transcript: correctedTranscript, summary: '## 总结\n\n（AI 生成失败，请重试）' }
+    const summary = await callDeepSeek([
+      { role: 'system', content: '你是中医教学内容整理专家。直接输出 Markdown 格式的总结分析，不要 JSON 包裹。' },
+      { role: 'user', content: prompt },
+    ], 4096, 0.5)
+
+    const cleanSummary = summary
+      .replace(/```markdown\s*/g, '').replace(/```\s*/g, '')
+      .replace(/^["']|["']$/g, '')
+      .trim()
+
+    if (cleanSummary.length < 20 || !cleanSummary.includes('#')) {
+      console.warn('[AI] 总结分析内容异常，使用原始文稿')
+      return { transcript: correctedTranscript, summary: '## 总结\n\n（AI 生成内容异常，请重试）' }
     }
+
+    console.log(`[AI] 总结分析完成，${cleanSummary.length} 字符`)
+    return { transcript: correctedTranscript, summary: cleanSummary }
+  } catch (e) {
+    console.warn('[AI] 总结分析 API 调用失败:', (e as Error).message?.slice(0, 80))
+    return { transcript: correctedTranscript, summary: '## 总结\n\n（AI 生成失败，请重试）' }
   }
 }
 
@@ -928,12 +1035,39 @@ export async function generateQuizQuestions(
 // 工具函数
 // ═══════════════════════════════════════════
 
-function formatTime(seconds: number): string {
-  const h = Math.floor(seconds / 3600)
-  const m = Math.floor((seconds % 3600) / 60)
-  const s = Math.floor(seconds % 60)
+function formatTime(seconds: number | string | undefined | null): string {
+  // 处理非法值
+  if (seconds === undefined || seconds === null || seconds === '') return '?'
+  // 处理字符串 timestamp（如 "2:30"）
+  let secs: number
+  if (typeof seconds === 'string') {
+    const parts = seconds.split(':')
+    if (parts.length >= 2) {
+      secs = parseInt(parts[0]) * 60 + parseInt(parts[1])
+    } else {
+      secs = parseFloat(seconds)
+    }
+  } else {
+    secs = seconds
+  }
+  if (isNaN(secs) || secs < 0) return '?'
+  const h = Math.floor(secs / 3600)
+  const m = Math.floor((secs % 3600) / 60)
+  const s = Math.floor(secs % 60)
   if (h > 0) {
     return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
   }
   return `${m}:${String(s).padStart(2, '0')}`
+}
+
+/** 清理 DeepSeek 返回的知识点/重难点的 timestamp 字段，确保是合法数字 */
+function sanitizeTimestamp(raw: unknown, fallbackSeconds: number = 0): number {
+  if (typeof raw === 'number' && !isNaN(raw) && raw >= 0) return raw
+  if (typeof raw === 'string') {
+    const parts = raw.split(':')
+    if (parts.length >= 2) return parseInt(parts[0]) * 60 + parseInt(parts[1])
+    const n = parseFloat(raw)
+    if (!isNaN(n) && n >= 0) return n
+  }
+  return fallbackSeconds
 }

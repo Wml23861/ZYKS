@@ -6,23 +6,52 @@ import { spawn } from 'node:child_process'
 import path from 'node:path'
 import fs from 'node:fs'
 
+/** 将 npm-bundled 二进制复制到可 spawn 的临时目录（修复 Windows EBUSY） */
+function stageBinary(srcPath: string, destDir: string, exeName: string): string {
+  fs.mkdirSync(destDir, { recursive: true })
+  const destPath = path.join(destDir, exeName)
+  // 如果目标已存在且大小一致，跳过复制
+  if (fs.existsSync(destPath) && fs.statSync(destPath).size === fs.statSync(srcPath).size) {
+    return destPath
+  }
+  fs.copyFileSync(srcPath, destPath)
+  return destPath
+}
+
 /** 自动检测 ffmpeg 路径：优先使用内置 @ffmpeg-installer，其次 PATH */
 async function resolveFfmpeg(): Promise<{ ffmpeg: string; ffprobe: string }> {
   try {
     const ffmpegInstaller = await import('@ffmpeg-installer/ffmpeg')
-    const ffmpegPath = (ffmpegInstaller as any).default?.path || (ffmpegInstaller as any).path || ffmpegInstaller
-    if (typeof ffmpegPath === 'string' && fs.existsSync(ffmpegPath)) {
-      // 尝试加载同目录下的 ffprobe
+    const bundledFfmpeg = (ffmpegInstaller as any).default?.path || (ffmpegInstaller as any).path || ffmpegInstaller
+    if (typeof bundledFfmpeg === 'string' && fs.existsSync(bundledFfmpeg)) {
+      // Windows 下 node_modules 中的 exe 可能被锁定（EBUSY），复制到 staging 目录
+      let ffmpegPath = bundledFfmpeg
       let ffprobePath = 'ffprobe'
-      try {
-        const ffprobeInstaller = await import('@ffprobe-installer/ffprobe')
-        ffprobePath = (ffprobeInstaller as any).default?.path || (ffprobeInstaller as any).path || ffprobeInstaller
-        if (typeof ffprobePath !== 'string') ffprobePath = 'ffprobe'
-      } catch {
-        // 未安装 ffprobe-installer，尝试同目录
-        const ffmpegDir = path.dirname(ffmpegPath)
-        const probePath = path.join(ffmpegDir, process.platform === 'win32' ? 'ffprobe.exe' : 'ffprobe')
-        if (fs.existsSync(probePath)) ffprobePath = probePath
+      if (process.platform === 'win32') {
+        const { config } = await import('../config/env.js')
+        const stagingDir = path.resolve(config.DB_PATH, '..', 'ffmpeg-staging')
+        const ffmpegExe = 'ffmpeg.exe'
+        const ffprobeExe = 'ffprobe.exe'
+        ffmpegPath = stageBinary(bundledFfmpeg, stagingDir, ffmpegExe)
+        // 同目录下的 ffprobe
+        const bundledFfprobe = path.join(path.dirname(bundledFfmpeg), ffprobeExe)
+        if (fs.existsSync(bundledFfprobe)) {
+          ffprobePath = stageBinary(bundledFfprobe, stagingDir, ffprobeExe)
+        }
+      } else {
+        ffmpegPath = bundledFfmpeg
+      }
+      // 非 Windows 或 staging 完成后，尝试加载 ffprobe
+      if (ffprobePath === 'ffprobe') {
+        try {
+          const ffprobeInstaller = await import('@ffprobe-installer/ffprobe')
+          const p = (ffprobeInstaller as any).default?.path || (ffprobeInstaller as any).path || ffprobeInstaller
+          if (typeof p === 'string') ffprobePath = p
+        } catch {
+          const ffmpegDir = path.dirname(bundledFfmpeg)
+          const probePath = path.join(ffmpegDir, process.platform === 'win32' ? 'ffprobe.exe' : 'ffprobe')
+          if (fs.existsSync(probePath)) ffprobePath = probePath
+        }
       }
       return { ffmpeg: ffmpegPath, ffprobe: ffprobePath }
     }

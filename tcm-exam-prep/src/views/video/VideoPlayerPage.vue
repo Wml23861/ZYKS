@@ -697,8 +697,57 @@ onBeforeUnmount(() => {
 .page-title { font-family: var(--tcm-font-decorative); font-size: var(--tcm-font-2xl); color: var(--tcm-text-primary); margin: 12px 0 24px; }
 
 /* ─── 播放器 ─── */
-.player-container { display: flex; flex-direction: column; gap: 16px; }
-.player-wrapper { border-radius: var(--tcm-radius-lg); overflow: hidden; background: #000; }
+.player-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto;
+  gap: 16px;
+  align-items: start;
+}
+/* 视频列（左） */
+.player-wrapper {
+  grid-column: 1;
+  grid-row: 1;
+  border-radius: var(--tcm-radius-lg);
+  overflow: hidden;
+  background: #000;
+}
+.processing-banner,
+.action-banner,
+.error-banner {
+  grid-column: 1;
+}
+/* Tab 内容列（右），跨越所有行 */
+.tabs-section {
+  grid-column: 2;
+  grid-row: 1 / 20;
+  max-height: calc(100vh - 140px);
+  display: flex;
+  flex-direction: column;
+}
+.tabs-section .tab-content {
+  flex: 1;
+  overflow-y: auto;
+  max-height: none;
+}
+
+/* 响应式：小屏切回上下布局 */
+@media (max-width: 900px) {
+  .player-container {
+    grid-template-columns: 1fr;
+  }
+  .player-wrapper,
+  .processing-banner,
+  .action-banner,
+  .error-banner,
+  .tabs-section {
+    grid-column: 1;
+  }
+  .tabs-section {
+    grid-row: auto;
+    max-height: 600px;
+  }
+}
 .player-wrapper.is-fullscreen { border-radius: 0; }
 .player-inner { position: relative; background: #000; }
 .video-element { width: 100%; display: block; max-height: 70vh; object-fit: contain; }
