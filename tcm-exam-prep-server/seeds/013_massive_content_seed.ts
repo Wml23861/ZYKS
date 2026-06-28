@@ -8,7 +8,7 @@ export async function seed(knex: Knex): Promise<void> {
     // ====================================================================
 
     // 阴阳学说
-    { id: 'sec-zhongji-004', estimated_study_time: 2400, content: `### 阴阳的基本概念与属性
+    { id: '', estimated_study_time: 2400, content: `### 阴阳的基本概念与属性
 
 阴阳是中国古代哲学的一对范畴，是对自然界相互关联的某些事物或现象对立双方属性的概括。《素问·阴阳应象大论》开篇即言："阴阳者，天地之道也，万物之纲纪，变化之父母，生杀之本始，神明之府也。治病必求于本。"
 
@@ -30,7 +30,7 @@ export async function seed(knex: Knex): Promise<void> {
 > **常见考题**："阳中有阴，阴中有阳"体现了阴阳的什么属性？——相对性（可分性）。
 > **易错点**：阴阳属性分析必须同一层次同一范畴，不能随意搭配。`},
 
-    { id: 'sec-zhongji-005', estimated_study_time: 3000, content: `### 阴阳学说的基本内容（深度解析）
+    { id: '', estimated_study_time: 3000, content: `### 阴阳学说的基本内容（深度解析）
 
 阴阳学说的基本内容可概括为"对立制约、互根互用、消长平衡、相互转化、交感互藏"五大关系。
 
@@ -65,7 +65,7 @@ export async function seed(knex: Knex): Promise<void> {
 
 > **高频考点**：互根互用→阴损及阳/阳损及阴；相互转化→"极"是条件；五大关系的经典原文配对。`},
 
-    { id: 'sec-zhongji-006', estimated_study_time: 2700, content: `### 阴阳学说在中医学中的应用（深度临床运用）
+    { id: '', estimated_study_time: 2700, content: `### 阴阳学说在中医学中的应用（深度临床运用）
 
 **一、说明人体组织结构**
 | 人体部位 | 阳 | 阴 |
@@ -105,7 +105,7 @@ export async function seed(knex: Knex): Promise<void> {
 > **核心考点**：四类病理的鉴别；王冰两大治法名言及其适应症。`},
 
     // 五行学说
-    { id: 'sec-zhongji-007', estimated_study_time: 3000, content: `### 五行的基本概念与归类
+    { id: '', estimated_study_time: 3000, content: `### 五行的基本概念与归类
 
 五行即木、火、土、金、水五种基本物质及其运动和变化。五行学说以五行的特性来归类事物的属性，以五行的生克制化来说明事物的相互联系。
 
@@ -140,7 +140,7 @@ export async function seed(knex: Knex): Promise<void> {
 
 > **必备**：五行特性原文；五行归类完整表（以五脏为核心串联记忆）。`},
 
-    { id: 'sec-zhongji-008', estimated_study_time: 3000, content: `### 五行学说的基本内容（深度解析生克乘侮）
+    { id: '', estimated_study_time: 3000, content: `### 五行学说的基本内容（深度解析生克乘侮）
 
 五行之间存在着"相生、相克、制化、相乘、相侮、母子相及"六种关系，前三种为正常生理关系，后三种为异常病理关系。
 
@@ -185,7 +185,7 @@ export async function seed(knex: Knex): Promise<void> {
 
 > **高频考点**：相乘与相侮的病因鉴别和临床举例；母病及子与子病及母的区分。`},
 
-    { id: 'sec-zhongji-009', estimated_study_time: 3000, content: `### 五行学说在中医学中的应用（全面临床运用）
+    { id: '', estimated_study_time: 3000, content: `### 五行学说在中医学中的应用（全面临床运用）
 
 **一、说明五脏的生理功能**
 
@@ -233,7 +233,7 @@ export async function seed(knex: Knex): Promise<void> {
 > **高频考点**：五种经典治法（滋水涵木、培土生金、抑木扶土、佐金平木、泻南补北）的含义及方剂对应。`},
 
     // 藏象 — 五脏深化
-    { id: 'sec-zhongji-011', estimated_study_time: 3000, content: `### 五脏深度解析（一）：心与肺
+    { id: '', estimated_study_time: 3000, content: `### 五脏深度解析（一）：心与肺
 
 **心——君主之官，神明出焉**
 
@@ -283,7 +283,7 @@ export async function seed(knex: Knex): Promise<void> {
 
 > **高频考点**：心主血脉与主神明的联系；肺主通调水道——"肺为水之上源"；肺朝百脉的生理意义。`},
 
-    { id: 'sec-zhongji-012', estimated_study_time: 3600, content: `### 五脏深度解析（二）：脾、肝、肾
+    { id: '', estimated_study_time: 3600, content: `### 五脏深度解析（二）：脾、肝、肾
 
 **脾——仓廪之官，后天之本**
 
@@ -351,7 +351,7 @@ export async function seed(knex: Knex): Promise<void> {
 
 > **必考**：肝"体阴而用阳"含义；脾主升清与内脏下垂关系；肾藏精与生长发育生殖的关系；五脏各自主管联属对应。`},
 
-    { id: 'sec-zhongji-013', estimated_study_time: 2700, content: `### 六腑与奇恒之腑
+    { id: '', estimated_study_time: 2700, content: `### 六腑与奇恒之腑
 
 **六腑总论**："六腑者，传化物而不藏，故实而不能满也。"——六腑以通为用，以降为顺。
 
@@ -393,7 +393,7 @@ export async function seed(knex: Knex): Promise<void> {
 > **高频考点**：胆的双重属性；胃为水谷之海、喜润恶燥；小肠泌别清浊；三焦的生理功能；奇恒之腑特点。`},
 
     // 精气血津液
-    { id: 'sec-zhongji-016', estimated_study_time: 3000, content: `### 气——生命的根本动力（深度解析）
+    { id: '', estimated_study_time: 3000, content: `### 气——生命的根本动力（深度解析）
 
 气是构成人体和维持人体生命活动的最基本物质。人体之气来源于先天之精（父母禀赋）、后天水谷精微（脾胃运化）及自然界的清气（肺吸入）。
 
@@ -437,7 +437,7 @@ export async function seed(knex: Knex): Promise<void> {
 > **高频考点**：元气、宗气、营气、卫气的来源分布功能；气的五大功能；气的升降出入与脏腑关系。`},
 
     // 病因
-    { id: 'sec-zhongji-025', estimated_study_time: 3000, content: `### 六淫（一）：风、寒、暑（深度解析）
+    { id: '', estimated_study_time: 3000, content: `### 六淫（一）：风、寒、暑（深度解析）
 
 六淫是风、寒、暑、湿、燥、火六种外感病邪的统称。六淫致病具有外感性、季节性、地域性、相兼性、转化性等共同特点。
 
@@ -469,7 +469,7 @@ export async function seed(knex: Knex): Promise<void> {
 
 > **风邪核心考点**："善行而数变"——善行（病位游走不定）、数变（发病急变化快）；"风为百病之长"（六淫之首，易兼夹他邪）。`},
 
-    { id: 'sec-zhongji-026', estimated_study_time: 2700, content: `### 六淫（二）：湿、燥、火（深度解析）
+    { id: '', estimated_study_time: 2700, content: `### 六淫（二）：湿、燥、火（深度解析）
 
 **湿邪——重浊黏滞**
 
@@ -506,7 +506,7 @@ export async function seed(knex: Knex): Promise<void> {
 
 > **核心考点**：湿性黏滞（症状+病程双重含义）；燥易伤肺；火易生风动血；内外风的病因鉴别。`},
 
-    { id: 'sec-zhongji-027', estimated_study_time: 2700, content: `### 七情内伤与饮食劳逸
+    { id: '', estimated_study_time: 2700, content: `### 七情内伤与饮食劳逸
 
 **一、七情内伤的基本概念**
 
@@ -553,7 +553,7 @@ export async function seed(knex: Knex): Promise<void> {
 
 > **高频考点**：七情"气机紊乱"条文——怒上喜缓悲消恐下惊乱思结；五劳所伤的对应关系。`},
 
-    { id: 'sec-zhongji-028', estimated_study_time: 2700, content: `### 痰饮与瘀血——两大病理产物
+    { id: '', estimated_study_time: 2700, content: `### 痰饮与瘀血——两大病理产物
 
 **一、痰饮**
 
@@ -1110,7 +1110,7 @@ export async function seed(knex: Knex): Promise<void> {
     // ====================================================================
     // 中医基础理论 — 更多深化
     // ====================================================================
-    { id: 'sec-zhongji-029', estimated_study_time: 2700, content: `### 邪正盛衰与虚实
+    { id: '', estimated_study_time: 2700, content: `### 邪正盛衰与虚实
 
 邪正盛衰是指在疾病过程中，致病邪气与机体正气之间的相互斗争所发生的盛衰变化。这是疾病发生发展中最基本的病机。
 
@@ -1147,7 +1147,7 @@ export async function seed(knex: Knex): Promise<void> {
 
 > **高频考点**：虚实真假鉴别（至虚有盛候、大实有羸状）；"邪气盛则实、精气夺则虚"的原文。`},
 
-    { id: 'sec-zhongji-030', estimated_study_time: 2700, content: `### 阴阳失调（核心病机）
+    { id: '', estimated_study_time: 2700, content: `### 阴阳失调（核心病机）
 
 阴阳失调是指在疾病过程中各种致病因素导致人体阴阳消长失去相对平衡所形成的病理变化。阴阳失调是脏腑经络气血津液等相互关系失调的高度概括。
 
@@ -1187,7 +1187,7 @@ export async function seed(knex: Knex): Promise<void> {
 
 > **高频考点**：阴阳格拒的真假鉴别（阴盛格阳vs阳盛格阴——舌脉是根本）；亡阴亡阳的鉴别（汗质——热黏vs清稀）。`},
 
-    { id: 'sec-zhongji-034', estimated_study_time: 2700, content: `### 正治反治与标本缓急（防治核心原则）
+    { id: '', estimated_study_time: 2700, content: `### 正治反治与标本缓急（防治核心原则）
 
 **一、正治（逆治）与反治（从治）**
 

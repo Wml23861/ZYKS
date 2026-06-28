@@ -139,7 +139,7 @@ const showBackToTop = ref(false)
 const chapterKnowledgePoints = ref<KnowledgePoint[]>([])
 const savedScrollPosition = ref(0)
 
-const md = new MarkdownIt({ html: false, breaks: true, linkify: true })
+const md = new MarkdownIt({ html: true, breaks: true, linkify: true })
 
 function renderMarkdown(content: string): string {
   return md.render(content || '')
@@ -413,6 +413,50 @@ onUnmounted(() => {
 .section-body :deep(th) { background: var(--tcm-bg-surface); font-weight: 600; }
 .section-body :deep(code) { background: var(--tcm-bg-surface); padding: 2px 6px; border-radius: 3px; font-size: 0.9em; }
 .section-body :deep(strong) { color: var(--tcm-primary-700); }
+
+/* === 颜色标记系统 === */
+.section-body :deep(.kp-badge) {
+  display: inline-block;
+  padding: 1px 10px;
+  border-radius: 12px;
+  font-size: 0.75em;
+  font-weight: 700;
+  margin: 0 4px;
+  vertical-align: middle;
+}
+.section-body :deep(.kp-badge.kp-exam) {
+  background: #dcfce7; color: #166534; border: 1px solid #86efac;
+}
+.section-body :deep(.kp-badge.kp-key-point) {
+  background: #fef3c7; color: #92400e; border: 1px solid #fcd34d;
+}
+.section-body :deep(.kp-badge.kp-difficult) {
+  background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5;
+}
+.section-body :deep(mark.kp-key) {
+  background: linear-gradient(180deg, transparent 60%, #fef08a 60%);
+  padding: 0 2px;
+}
+/* 折叠速记面板 */
+.section-body :deep(.kp-summary-panel) {
+  margin: 24px 0 8px; padding: 16px 20px;
+  background: linear-gradient(135deg, #f0f9ff 0%, #fefce8 100%);
+  border: 2px solid #93c5fd; border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(147,197,253,0.15);
+}
+.section-body :deep(.kp-summary-panel summary) {
+  cursor: pointer; font-size: 1.05em; font-weight: 700;
+  color: var(--tcm-primary-600); padding: 4px 0; user-select: none;
+}
+.section-body :deep(.kp-summary-panel summary::-webkit-details-marker) { display: none; }
+.section-body :deep(.kp-summary-panel summary::before) {
+  content: '▶ '; font-size: 0.8em; display: inline-block;
+}
+.section-body :deep(.kp-summary-panel[open] summary::before) { content: '▼ '; }
+.section-body :deep(.kp-summary-panel ul), .section-body :deep(.kp-summary-panel ol) {
+  margin: 4px 0 8px; padding-left: 20px;
+}
+.section-body :deep(.kp-summary-panel li) { margin-bottom: 4px; line-height: 1.6; }
 
 .section-kp-badges {
   display: flex;

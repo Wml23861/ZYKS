@@ -6,7 +6,7 @@ export async function seed(knex: Knex): Promise<void> {
   const updates: SecUpdate[] = [
 
     // ======== 中医基础理论 - 15 sections enhanced ========
-    { id:'sec-zhongji-001', estimated_study_time: 2400, content:`### 中医学理论体系的形成——四大经典奠基
+    { id:'', estimated_study_time: 2400, content:`### 中医学理论体系的形成——四大经典奠基
 
 中医学理论体系的形成以四大经典著作的先后问世为标志，是中国古代医家智慧的结晶。
 
@@ -61,7 +61,7 @@ export async function seed(knex: Knex): Promise<void> {
 
 > **考试重点**：《伤寒杂病论》创立辨证论治；《神农本草经》首分三品；《黄帝内经》"医家之宗"；《难经》"独取寸口"。`},
 
-    { id:'sec-zhongji-004', estimated_study_time: 1800, content:`### 阴阳的基本概念与属性
+    { id:'', estimated_study_time: 1800, content:`### 阴阳的基本概念与属性
 
 阴阳是对自然界相互关联的某些事物或现象对立双方属性的概括，是中国古代哲学的一对基本范畴。
 
@@ -86,7 +86,7 @@ export async function seed(knex: Knex): Promise<void> {
 
 > **常考场景**：事物的阴阳属性归类题；"阴阳属性具有相对性"的多选判断题；水火为阴阳征兆的理论基础。`},
 
-    { id:'sec-zhongji-005', estimated_study_time: 2400, content:`### 阴阳学说的基本内容——五大关系
+    { id:'', estimated_study_time: 2400, content:`### 阴阳学说的基本内容——五大关系
 
 | 关系类型 | 经典原文 | 核心内涵 | 考试常考方向 |
 |----------|----------|----------|------------|
@@ -109,7 +109,7 @@ export async function seed(knex: Knex): Promise<void> {
 
 > **高分要点**：五大关系经典原文对照；互根互用和相互转化最易出现在多选题和问答题中；案例分析（阴损及阳/阳损及阴的临床实例）。`},
 
-    { id:'sec-zhongji-006', estimated_study_time: 2400, content:`### 阴阳学说在中医学中的应用
+    { id:'', estimated_study_time: 2400, content:`### 阴阳学说在中医学中的应用
 
 **一、病理变化的阴阳分析**
 
@@ -138,7 +138,7 @@ export async function seed(knex: Knex): Promise<void> {
 
 > **考试重点**：四类病理的鉴别（实热/实寒/虚热/虚寒）；真寒假热与真热假寒的鉴别；两大经典原文的出处（王冰注《素问》）和治疗代表方。`},
 
-    { id:'sec-zhongji-008', estimated_study_time: 2400, content:`### 五行学说的基本内容——生克乘侮全解
+    { id:'', estimated_study_time: 2400, content:`### 五行学说的基本内容——生克乘侮全解
 
 **一、相生相克次序及关系**
 
@@ -166,7 +166,7 @@ export async function seed(knex: Knex): Promise<void> {
 
 > **考试重点**：治法名与五行关系的对应（如哪一法是利用相生关系？哪一法利用相克关系？）；各治法代表方剂；案例分析——"患者见肝气犯脾证应选用何治法？"`},
 
-    { id:'sec-zhongji-014', estimated_study_time: 2400, content:`### 脏腑之间的关系——脏与脏核心关系
+    { id:'', estimated_study_time: 2400, content:`### 脏腑之间的关系——脏与脏核心关系
 
 **一、心与肾——水火既济**
 
@@ -203,7 +203,7 @@ export async function seed(knex: Knex): Promise<void> {
 
 > **考试重点**：心肾不交病机方剂；肝肾同源内涵及病理；脾肾先后天关系；各脏腑关系病理的代表方剂。`},
 
-    { id:'sec-zhongji-019', estimated_study_time: 3000, content:`### 精气血津液之间的关系——气血关系为核心
+    { id:'', estimated_study_time: 3000, content:`### 精气血津液之间的关系——气血关系为核心
 
 **一、气为血之帅（三层含义）**
 
@@ -244,7 +244,7 @@ export async function seed(knex: Knex): Promise<void> {
 
 > **高频考点**：气血六大关系与代表方剂；津血同源的三大临床禁忌原文出处；"夺血者无汗"在临床的具体应用。`},
 
-    { id:'sec-zhongji-028', estimated_study_time: 2400, content:`### 痰饮与瘀血——重点病理产物详解
+    { id:'', estimated_study_time: 2400, content:`### 痰饮与瘀血——重点病理产物详解
 
 **一、瘀血——五大特征（"痛块血色脉"）**
 
@@ -286,7 +286,7 @@ export async function seed(knex: Knex): Promise<void> {
 
 > **考试重点**：瘀血五大特征（"痛块血色脉"五字诀）；瘀血形成五大原因；痰饮"百病多由痰作祟"含义。`},
 
-    { id:'sec-zhongji-034', estimated_study_time: 3000, content:`### 正治反治与标本缓急——反治四法深度解析
+    { id:'', estimated_study_time: 3000, content:`### 正治反治与标本缓急——反治四法深度解析
 
 **一、正治（逆治）——常规治法**
 

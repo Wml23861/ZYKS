@@ -4,7 +4,7 @@ export async function seed(knex: Knex): Promise<void> {
   const updates: { id: string; content: string; estimated_study_time: number }[] = [
 
     // ==================== 中医基础理论 — 补充临床联系和考试要点 ====================
-    { id: 'sec-zhongji-006', estimated_study_time: 1800, content: `### 阴阳学说在中医学中的应用
+    { id: '', estimated_study_time: 1800, content: `### 阴阳学说在中医学中的应用
 
 **病理变化**（高频考试）：
 | 病理 | 本质 | 临床表现 | 舌脉 |
@@ -32,7 +32,7 @@ export async function seed(knex: Knex): Promise<void> {
 
 > **必考点**：四种病理的临床鉴别；两大经典治疗原文及其含义；阴阳格拒的临床表现。`},
 
-    { id: 'sec-zhongji-011', estimated_study_time: 2400, content: `### 五脏（一）：心与肺
+    { id: '', estimated_study_time: 2400, content: `### 五脏（一）：心与肺
 
 **心**（君主之官，神明出焉）：
 

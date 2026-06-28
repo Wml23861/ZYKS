@@ -28,7 +28,7 @@ export async function seed(knex: Knex): Promise<void> {
 
   // 中医基础理论 KPs
   function zhongjiKPs() {
-    const sec=(n:string)=>`sec-zhongji-${n}`; const ch=(n:string)=>`ch-zhongji-${n}`; const sub='zhongji'
+    const sec=(n:string)=>''; const ch=(n:string)=>`ch-zhongji-${n}`; const sub='zhongji'
     const Z=(title:string,content:string,secn:string,chn:string,diff='intermediate',tags=HFP,freq=4,key=1,hard=0,pred=0)=>{
       kps.push(mkp(n(),sec(secn),ch(chn),sub,title,content,diff,tags,++s,key,hard,freq,pred))
     }

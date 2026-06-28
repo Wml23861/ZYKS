@@ -26,6 +26,7 @@ async function main() {
   // 运行种子
   const { seed: seed1 } = await import('./seeds/001_subjects_structure.ts')
   const { seed: seed2 } = await import('./seeds/002_sections_seed.ts')
+  const { seed: seed2z } = await import('./seeds/002_zhongji_pdf_full.ts')
   const { seed: seed2b } = await import('./seeds/002b_knowledge_points_seed.ts')
   const { seed: seed3 } = await import('./seeds/003_questions_seed.ts')
   const { seed: seed4 } = await import('./seeds/004_flashcards_seed.ts')
@@ -53,6 +54,7 @@ async function main() {
 
   await seed1(db)
   await seed2(db)
+  await seed2z(db)
   await seed2b(db)
   await seed3(db)
   await seed4(db)

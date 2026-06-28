@@ -6,7 +6,7 @@ export async function seed(knex: Knex): Promise<void> {
     // ====================================================================
     // 中医基础理论 — 阴阳学说
     // ====================================================================
-    { id: 'sec-zhongji-004', estimated_study_time: 1800, content: `### 阴阳的基本概念与属性
+    { id: '', estimated_study_time: 1800, content: `### 阴阳的基本概念与属性
 
 阴阳是对自然界相互关联的某些事物或现象对立双方属性的概括。《素问·阴阳应象大论》："阴阳者天地之道也，万物之纲纪，变化之父母，生杀之本始，神明之府也。"
 
@@ -22,7 +22,7 @@ export async function seed(knex: Knex): Promise<void> {
 
 > **考点**：阴阳属性的相对性（可分性）；与五行属性的本质区别。`},
 
-    { id: 'sec-zhongji-005', estimated_study_time: 2100, content: `### 阴阳学说的基本内容
+    { id: '', estimated_study_time: 2100, content: `### 阴阳学说的基本内容
 
 **一、对立制约**：阴阳属性相反、相互抑制。"阴胜则阳病，阳胜则阴病"
 
@@ -39,7 +39,7 @@ export async function seed(knex: Knex): Promise<void> {
     // ====================================================================
     // 中医基础理论 — 五行学说
     // ====================================================================
-    { id: 'sec-zhongji-007', estimated_study_time: 2100, content: `### 五行的基本概念与归类
+    { id: '', estimated_study_time: 2100, content: `### 五行的基本概念与归类
 
 《尚书·洪范》首载五行特性：
 - **木曰曲直**：生长、升发、条达舒畅
@@ -69,7 +69,7 @@ export async function seed(knex: Knex): Promise<void> {
 
 > **考点**：五行特性原文；完整归类表（五脏为核心）。`},
 
-    { id: 'sec-zhongji-008', estimated_study_time: 2100, content: `### 五行学说的基本内容
+    { id: '', estimated_study_time: 2100, content: `### 五行学说的基本内容
 
 **一、相生**（母子关系）：木→火→土→金→水→木。生我者为母，我生者为子
 
@@ -91,7 +91,7 @@ export async function seed(knex: Knex): Promise<void> {
 
 > **考点**：相乘与相侮的病因和举例；生理性制化与病理性乘侮的区分。`},
 
-    { id: 'sec-zhongji-009', estimated_study_time: 2400, content: `### 五行学说在中医学中的应用
+    { id: '', estimated_study_time: 2400, content: `### 五行学说在中医学中的应用
 
 **一、说明五脏的生理功能与相互关系**
 
@@ -142,7 +142,7 @@ export async function seed(knex: Knex): Promise<void> {
     // ====================================================================
     // 中医基础理论 — 藏象
     // ====================================================================
-    { id: 'sec-zhongji-010', estimated_study_time: 1800, content: `### 藏象学说概述
+    { id: '', estimated_study_time: 1800, content: `### 藏象学说概述
 
 **藏象**：藏指藏于体内的内脏，象指表现于外的生理病理征象。藏象学说是研究人体脏腑的生理功能、病理变化及其相互关系的学说。
 
@@ -163,7 +163,7 @@ export async function seed(knex: Knex): Promise<void> {
 
 > **考点**：五脏六腑的功能区分；奇恒之腑的形态功能两面性；两类原文的理解。`},
 
-    { id: 'sec-zhongji-012', estimated_study_time: 2400, content: `### 五脏（二）：脾、肝、肾
+    { id: '', estimated_study_time: 2400, content: `### 五脏（二）：脾、肝、肾
 
 **脾**（仓廪之官，后天之本，气血生化之源）：
 
@@ -196,7 +196,7 @@ export async function seed(knex: Knex): Promise<void> {
 
 > **考点**：脾为后天之本与肾为先天之本的区别；肝体阴用阳的含义；肾主纳气的生理病理；各脏系统联系。`},
 
-    { id: 'sec-zhongji-013', estimated_study_time: 1800, content: `### 六腑与奇恒之腑
+    { id: '', estimated_study_time: 1800, content: `### 六腑与奇恒之腑
 
 **六腑**（传化物而不藏，以通降为顺）：
 
@@ -224,7 +224,7 @@ export async function seed(knex: Knex): Promise<void> {
     // ====================================================================
     // 中医基础理论 — 气血津液
     // ====================================================================
-    { id: 'sec-zhongji-016', estimated_study_time: 1800, content: `### 气
+    { id: '', estimated_study_time: 1800, content: `### 气
 
 **一、气的基本概念**：气是构成人体和维持生命活动的最基本物质，是不断运动的极细微物质。
 
@@ -259,7 +259,7 @@ export async function seed(knex: Knex): Promise<void> {
 
 > **考点**：气的五种功能；四种气的组成和功能区分；营卫的区别（脉内/脉外、柔/刚、营养/护卫）。`},
 
-    { id: 'sec-zhongji-017', estimated_study_time: 1800, content: `### 血
+    { id: '', estimated_study_time: 1800, content: `### 血
 
 **一、血的基本概念**：血是循行于脉中富有营养的红色液体，是构成人体和维持生命活动的基本物质之一。
 
@@ -290,7 +290,7 @@ export async function seed(knex: Knex): Promise<void> {
 
 > **考点**：血的生成途径及与脏腑的关系；血的运行所涉及的脏腑及其作用；血虚的临床表现。`},
 
-    { id: 'sec-zhongji-018', estimated_study_time: 1800, content: `### 津液
+    { id: '', estimated_study_time: 1800, content: `### 津液
 
 **一、津液的概念**：津液是机体一切正常水液的总称（包括唾液、胃液、肠液、泪、涕、汗、尿等）。津与液的区别：
 
@@ -323,7 +323,7 @@ export async function seed(knex: Knex): Promise<void> {
     // ====================================================================
     // 中医基础理论 — 经络
     // ====================================================================
-    { id: 'sec-zhongji-020', estimated_study_time: 1800, content: `### 经络系统的组成
+    { id: '', estimated_study_time: 1800, content: `### 经络系统的组成
 
 **经络**：运行全身气血、联络脏腑肢节、沟通上下内外的通道。经是主干（纵向），络是分支（网络全身）。
 
@@ -357,7 +357,7 @@ export async function seed(knex: Knex): Promise<void> {
     // ====================================================================
     // 中医基础理论 — 病因
     // ====================================================================
-    { id: 'sec-zhongji-025', estimated_study_time: 1800, content: `### 六淫（一）：风、寒、暑
+    { id: '', estimated_study_time: 1800, content: `### 六淫（一）：风、寒、暑
 
 **六淫**是风、寒、暑、湿、燥、火六种外感致病邪气的总称。共同特点：外感性、季节性、地域性、相兼性、转化性。
 
@@ -388,7 +388,7 @@ export async function seed(knex: Knex): Promise<void> {
 
 > **考点**：风邪四种性质和致病特点；寒邪凝滞致痛的特点；暑邪纯外邪无内生；暑多挟湿的临床意义。`},
 
-    { id: 'sec-zhongji-026', estimated_study_time: 1800, content: `### 六淫（二）：湿、燥、火
+    { id: '', estimated_study_time: 1800, content: `### 六淫（二）：湿、燥、火
 
 **四、湿邪**（湿性黏滞）：
 
@@ -421,7 +421,7 @@ export async function seed(knex: Knex): Promise<void> {
 
 > **考点**：湿邪黏滞和趋下的特点；燥邪伤肺；火邪生风动血致疮痈；外感六淫与内生五邪的区别。`},
 
-    { id: 'sec-zhongji-027', estimated_study_time: 1800, content: `### 七情内伤与饮食劳逸
+    { id: '', estimated_study_time: 1800, content: `### 七情内伤与饮食劳逸
 
 **一、七情内伤**
 
@@ -465,7 +465,7 @@ export async function seed(knex: Knex): Promise<void> {
     // ====================================================================
     // 中医基础理论 — 病机
     // ====================================================================
-    { id: 'sec-zhongji-029', estimated_study_time: 1800, content: `### 邪正盛衰与虚实
+    { id: '', estimated_study_time: 1800, content: `### 邪正盛衰与虚实
 
 **病机**：疾病发生、发展与变化的机制。基本病机包括**邪正盛衰**、**阴阳失调**、**气血津液失常**和**内生五邪**。
 
@@ -494,7 +494,7 @@ export async function seed(knex: Knex): Promise<void> {
 
 > **考点**：虚实的定义（邪气盛则实、精气夺则虚）；虚实错杂的三种形式；虚实真假（真实假虚/真虚假实）的鉴别。`},
 
-    { id: 'sec-zhongji-030', estimated_study_time: 1800, content: `### 阴阳失调
+    { id: '', estimated_study_time: 1800, content: `### 阴阳失调
 
 阴阳失调是疾病发生发展的内在根据，主要包括**阴阳偏胜**、**阴阳偏衰**、**阴阳互损**、**阴阳格拒**和**阴阳亡失**。
 
@@ -535,7 +535,7 @@ export async function seed(knex: Knex): Promise<void> {
     // ====================================================================
     // 中医基础理论 — 防治原则
     // ====================================================================
-    { id: 'sec-zhongji-034', estimated_study_time: 1800, content: `### 正治反治与标本缓急
+    { id: '', estimated_study_time: 1800, content: `### 正治反治与标本缓急
 
 **一、治则与治法的区别**：治则是治疗疾病的基本原则（指导性），治法是具体治疗方法（操作性）。
 

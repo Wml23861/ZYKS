@@ -9,7 +9,7 @@ export async function seed(knex: Knex): Promise<void> {
 
   // === 科目 ===
   await knex('subjects').insert([
-    { id: 'zhongji', name: '中医基础理论', short_name: '中基', icon: 'Reading', description: '含中医经典著作内容，是中医学习的理论基础和入门科目', exam_weight: 5, total_chapters: 10, total_questions: 0, color: '#8B2500', sort_order: 1 },
+    { id: 'zhongji', name: '中医基础理论', short_name: '中基', icon: 'Reading', description: '含中医经典著作内容，是中医学习的理论基础和入门科目', exam_weight: 5, total_chapters: 9, total_questions: 0, color: '#8B2500', sort_order: 1 },
     { id: 'zhenjuan', name: '中医诊断学', short_name: '中诊', icon: 'View', description: '涵盖望闻问切四诊方法及八纲辨证、脏腑辨证等', exam_weight: 5, total_chapters: 8, total_questions: 0, color: '#C0392B', sort_order: 2 },
     { id: 'zhongyao', name: '中药学', short_name: '中药', icon: 'DishDot', description: '系统学习常用中药的性味归经、功效主治、用法用量', exam_weight: 5, total_chapters: 12, total_questions: 0, color: '#B8860B', sort_order: 3 },
     { id: 'fangji', name: '方剂学', short_name: '方剂', icon: 'Document', description: '学习方剂的组成原则、分类及常用方剂的组成与运用', exam_weight: 5, total_chapters: 10, total_questions: 0, color: '#D4A030', sort_order: 4 },
@@ -27,17 +27,16 @@ export async function seed(knex: Knex): Promise<void> {
 
   // === 章节 (106个) ===
   await knex('chapters').insert([
-    // 中医基础理论 — 10章
-    { id: 'ch-zhongji-01', subject_id: 'zhongji', title: '绪论', description: '中医学理论体系的基本概念、形成与发展、基本特点及主要思维方式', sort_order: 1, section_count: 4, knowledge_point_count: 8 },
-    { id: 'ch-zhongji-02', subject_id: 'zhongji', title: '哲学基础', description: '气一元论、阴阳学说——中医学的哲学基础与思维方法', sort_order: 2, section_count: 5, knowledge_point_count: 12 },
-    { id: 'ch-zhongji-03', subject_id: 'zhongji', title: '五行学说', description: '五行的基本概念、基本内容及在中医学中的应用', sort_order: 3, section_count: 3, knowledge_point_count: 7 },
-    { id: 'ch-zhongji-04', subject_id: 'zhongji', title: '藏象', description: '五脏、六腑、奇恒之腑的生理功能及相互关系', sort_order: 4, section_count: 5, knowledge_point_count: 12 },
-    { id: 'ch-zhongji-05', subject_id: 'zhongji', title: '精气血津液', description: '精、气、血、津液的概念、生成、功能及相互关系', sort_order: 5, section_count: 5, knowledge_point_count: 10 },
-    { id: 'ch-zhongji-06', subject_id: 'zhongji', title: '经络', description: '十二经脉、奇经八脉的循行分布规律及生理功能', sort_order: 6, section_count: 3, knowledge_point_count: 7 },
-    { id: 'ch-zhongji-07', subject_id: 'zhongji', title: '体质', description: '体质的概念、形成因素、分类及与疾病的关系', sort_order: 7, section_count: 2, knowledge_point_count: 4 },
-    { id: 'ch-zhongji-08', subject_id: 'zhongji', title: '病因', description: '六淫、七情、饮食劳逸、痰饮瘀血等致病因素', sort_order: 8, section_count: 4, knowledge_point_count: 8 },
-    { id: 'ch-zhongji-09', subject_id: 'zhongji', title: '病机', description: '疾病发生、发展与变化的基本机制', sort_order: 9, section_count: 4, knowledge_point_count: 8 },
-    { id: 'ch-zhongji-10', subject_id: 'zhongji', title: '防治原则', description: '中医预防与治疗疾病的基本原则', sort_order: 10, section_count: 3, knowledge_point_count: 6 },
+    // 中医基础理论 — 9章（对应第4版教材）
+    { id: 'ch-zhongji-01', subject_id: 'zhongji', title: '绪论', description: '中医学理论体系的形成与发展、基本特点及主要思维方式', sort_order: 1, section_count: 5, knowledge_point_count: 6 },
+    { id: 'ch-zhongji-02', subject_id: 'zhongji', title: '中医学的哲学基础', description: '气一元论、阴阳学说、五行学说——构建中医学理论体系的基石', sort_order: 2, section_count: 7, knowledge_point_count: 12 },
+    { id: 'ch-zhongji-03', subject_id: 'zhongji', title: '藏象', description: '五脏、六腑、奇恒之腑的生理功能及相互关系', sort_order: 3, section_count: 23, knowledge_point_count: 12 },
+    { id: 'ch-zhongji-04', subject_id: 'zhongji', title: '精气血津液神', description: '精、气、血、津液、神的概念、生成、功能及相互关系', sort_order: 4, section_count: 25, knowledge_point_count: 10 },
+    { id: 'ch-zhongji-05', subject_id: 'zhongji', title: '经络', description: '十二经脉、奇经八脉的循行规律及生理功能', sort_order: 5, section_count: 19, knowledge_point_count: 7 },
+    { id: 'ch-zhongji-06', subject_id: 'zhongji', title: '体质', description: '体质的概念、形成因素、分类及临床应用', sort_order: 6, section_count: 11, knowledge_point_count: 4 },
+    { id: 'ch-zhongji-07', subject_id: 'zhongji', title: '病因', description: '外感病因、内伤病因、病理产物性病因及其他病因', sort_order: 7, section_count: 15, knowledge_point_count: 8 },
+    { id: 'ch-zhongji-08', subject_id: 'zhongji', title: '病机', description: '发病机理、基本病机、内生五邪及疾病传变', sort_order: 8, section_count: 15, knowledge_point_count: 8 },
+    { id: 'ch-zhongji-09', subject_id: 'zhongji', title: '养生与防治原则', description: '养生、治未病及治则治法', sort_order: 9, section_count: 13, knowledge_point_count: 6 },
     // 中医诊断学 — 8章
     { id: 'ch-zhenjuan-01', subject_id: 'zhenjuan', title: '望诊', description: '望神、望色、望形态、望舌等望诊方法', sort_order: 1, section_count: 5, knowledge_point_count: 10 },
     { id: 'ch-zhenjuan-02', subject_id: 'zhenjuan', title: '闻诊', description: '听声音和嗅气味以诊察疾病', sort_order: 2, section_count: 3, knowledge_point_count: 5 },
@@ -151,5 +150,5 @@ export async function seed(knex: Knex): Promise<void> {
     { id: 'ch-zhenjiu-08', subject_id: 'zhenjiu', title: '针灸治疗各论', description: '各科常见病证的针灸治疗', sort_order: 8, section_count: 2, knowledge_point_count: 6 },
   ])
 
-  console.log('[Seed 001] 14个科目、106个章节已导入')
+  console.log('[Seed 001] 14个科目、105个章节已导入')
 }

@@ -4,7 +4,7 @@ export async function seed(knex:Knex):Promise<void>{
   // 1. 添加精气学说 section
   const es=await knex('sections').where('subject_id','zhongji').where('title','精气学说').first()
   if(!es){
-    await knex('sections').insert({id:'sec-zhongji-jingqi',chapter_id:'ch-zhongji-05',subject_id:'zhongji',title:'精气学说',content:'研究精与气的概念、生成、功能及其相互关系的理论。',sort_order:0,estimated_study_time:45})
+    await knex('sections').insert({id:'sec-zhongji-jingqi',chapter_id:'ch-zhongji-02',subject_id:'zhongji',title:'精气学说',content:'研究精与气的概念、生成、功能及其相互关系的理论。',sort_order:0,estimated_study_time:45})
     console.log('+section:精气学说')
   }
   // 查询实际 section 映射

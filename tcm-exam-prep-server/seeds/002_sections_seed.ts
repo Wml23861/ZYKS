@@ -185,7 +185,7 @@ export async function seed(knex: Knex): Promise<void> {
 - "**益火之源以消阴翳**"——温阳以消虚寒（阳虚阴盛）
 
 > **考点**：四类病理的鉴别；两大经典原文的治疗内涵。`),
-    s('sec-zhongji-007','ch-zhongji-03','zhongji','五行的基本概念与归类',1,`### 五行的基本概念与归类
+    s('sec-zhongji-007','ch-zhongji-02','zhongji','五行的基本概念与归类',1,`### 五行的基本概念与归类
 
 《尚书·洪范》首载五行特性：
 - 木曰曲直（生长、升发、条达舒畅）
@@ -205,7 +205,7 @@ export async function seed(knex: Knex): Promise<void> {
 | 水 | 肾 | 膀胱 | 骨 | 发 | 耳 | 唾 | 恐 | 冬 |
 
 > **考点**：五行特性原文；五脏系统的一一对应。`,600),
-    s('sec-zhongji-008','ch-zhongji-03','zhongji','五行学说的基本内容',2,`### 五行学说的基本内容
+    s('sec-zhongji-008','ch-zhongji-02','zhongji','五行学说的基本内容',2,`### 五行学说的基本内容
 
 **相生次序**：木→火→土→金→水→木。母子关系："生我"者为母，"我生"者为子。
 **相克次序**：木→土→水→火→金→木。"克我"为所不胜，"我克"为所胜。
@@ -223,7 +223,7 @@ export async function seed(knex: Knex): Promise<void> {
 | 金水相生 | 金生水 | 补肺肾之阴 |
 
 > **考点**：治法名称与五行关系的对应。`),
-    s('sec-zhongji-009','ch-zhongji-03','zhongji','五行学说在中医学中的应用',3,`### 五行学说在中医学中的应用
+    s('sec-zhongji-009','ch-zhongji-02','zhongji','五行学说在中医学中的应用',3,`### 五行学说在中医学中的应用
 
 **疾病传变举例**：
 | 传变 | 路径 | 举例 |
@@ -234,7 +234,7 @@ export async function seed(knex: Knex): Promise<void> {
 | 子病及母 | 子脏传母脏 | 肝火旺盛→心火上炎 |
 
 > **考点**：传变举例的案例分析题——能分辨类型。`,600),
-    s('sec-zhongji-010','ch-zhongji-04','zhongji','藏象学说概述',1,`### 藏象学说概述
+    s('sec-zhongji-010','ch-zhongji-02','zhongji','藏象学说概述',1,`### 藏象学说概述
 
 藏，指隐藏于体内的内脏；象，指内脏生理功能、病理变化反映于外的征象。"藏"是"象"的内在本质，"象"是"藏"的外在反映。
 
@@ -264,7 +264,7 @@ export async function seed(knex: Knex): Promise<void> {
 **胆的双重归属**：既属六腑（排泄胆汁参与消化），又是奇恒之腑（贮藏精汁，为"中精之腑"）。
 
 > **考点**：五脏"藏而不泻"vs六腑"泻而不藏"；藏象学说形成的四个方面；胆的双重归属。`,1200),
-    s('sec-zhongji-011','ch-zhongji-04','zhongji','五脏（一）：心与肺',2,`### 五脏（一）：心与肺
+    s('sec-zhongji-011','ch-zhongji-02','zhongji','五脏（一）：心与肺',2,`### 五脏（一）：心与肺
 
 **心**（君主之官，神明出焉）：
 - 心主血脉：心气推动血液在脉中运行全身
@@ -280,7 +280,7 @@ export async function seed(knex: Knex): Promise<void> {
 - 肺为娇脏，不耐寒热
 
 > **考点**：心为君主之官主血脉主神明；肺为水之上源主治节。`,1200),
-    s('sec-zhongji-012','ch-zhongji-04','zhongji','五脏（二）：脾、肝、肾',3,`### 五脏（二）：脾、肝、肾
+    s('sec-zhongji-012','ch-zhongji-02','zhongji','五脏（二）：脾、肝、肾',3,`### 五脏（二）：脾、肝、肾
 
 **脾**：
 - 主运化（水谷精微+水液）、主升清（维持内脏位置）、主统血（统摄血液于脉内）
@@ -298,7 +298,7 @@ export async function seed(knex: Knex): Promise<void> {
 - 系统联系：在体合骨、其华在发、开窍于耳及二阴、在液为唾、在志为恐
 
 > **考点**：脾后天之本vs肾先天之本；肝体阴用阳；肾主纳气。`,1200),
-    s('sec-zhongji-013','ch-zhongji-04','zhongji','六腑与奇恒之腑',4,`### 六腑与奇恒之腑
+    s('sec-zhongji-013','ch-zhongji-02','zhongji','六腑与奇恒之腑',4,`### 六腑与奇恒之腑
 
 #### 一、六腑
 
@@ -326,7 +326,7 @@ export async function seed(knex: Knex): Promise<void> {
 | **女子胞** | 主持月经、孕育胎儿 | 与肾、肝、脾及冲任二脉密切相关 |
 
 > **考点**：六腑各自功能；小肠主液vs大肠主津；三焦三部功能（上焦如雾、中焦如沤、下焦如渎）；胆的双重归属；脑为元神之府。`,1200),
-    s('sec-zhongji-014','ch-zhongji-04','zhongji','脏腑之间的关系',5,`### 脏腑之间的关系
+    s('sec-zhongji-014','ch-zhongji-02','zhongji','脏腑之间的关系',5,`### 脏腑之间的关系
 
 **脏与脏**（高频考点）：
 | 关系 | 生理基础 | 病理 |
@@ -341,7 +341,7 @@ export async function seed(knex: Knex): Promise<void> {
 **脏腑表里**：心合小肠、肺合大肠、脾合胃、肝合胆、肾合膀胱
 
 > **考点**：心肾相交/不交、肝肾同源、脾肾先后天关系。`),
-    s('sec-zhongji-015','ch-zhongji-05','zhongji','精',1,`### 精
+    s('sec-zhongji-015','ch-zhongji-02','zhongji','精',1,`### 精
 
 精是构成人体和维持生命活动的最基本物质。
 
@@ -354,7 +354,7 @@ export async function seed(knex: Knex): Promise<void> {
 **精的功能**：繁衍生命、濡养作用、化血作用（精血同源）、化气作用、化神作用。
 
 > **考点**：先天之精与后天之精的来源及相互关系。`,600),
-    s('sec-zhongji-016','ch-zhongji-05','zhongji','气',2,`### 气
+    s('sec-zhongji-016','ch-zhongji-02','zhongji','气',2,`### 气
 
 **气的分类**（重要考点）：
 | 分类 | 组成 | 功能 | 分布 |
@@ -369,7 +369,7 @@ export async function seed(knex: Knex): Promise<void> {
 **气机失调**：气滞（胀闷痛）、气逆（咳喘呕恶）、气陷（下垂脱肛）、气脱、气闭。
 
 > **考点**：四种气的组成功能；营气脉中vs卫气脉外。`,1200),
-    s('sec-zhongji-017','ch-zhongji-05','zhongji','血',3,`### 血
+    s('sec-zhongji-017','ch-zhongji-02','zhongji','血',3,`### 血
 
 血是循行于脉中富有营养的红色液态物质。
 
@@ -380,7 +380,7 @@ export async function seed(knex: Knex): Promise<void> {
 **血的功能**：濡养全身、养神（"肝受血而能视，足受血而能步"）
 
 > **考点**：血生成两大途径。`,600),
-    s('sec-zhongji-018','ch-zhongji-05','zhongji','津液',4,`### 津液
+    s('sec-zhongji-018','ch-zhongji-02','zhongji','津液',4,`### 津液
 
 | 区别 | 津 | 液 |
 |------|------|------|
@@ -391,7 +391,7 @@ export async function seed(knex: Knex): Promise<void> {
 **代谢过程**：生成于脾胃小肠→输布于脾肺肾三焦→排泄于呼气、汗、尿、粪。
 
 > **考点**：津与液的三方面区别（性状、分布、功能）。`,600),
-    s('sec-zhongji-019','ch-zhongji-05','zhongji','精气血津液的关系',5,`### 精气血津液之间的关系
+    s('sec-zhongji-019','ch-zhongji-02','zhongji','精气血津液的关系',5,`### 精气血津液之间的关系
 
 **气与血**——"气为血之帅，血为气之母"（重中之重）：
 - 气能生血：气虚致血虚（补血常配补气）
@@ -404,7 +404,7 @@ export async function seed(knex: Knex): Promise<void> {
 **津血同源**：均源于水谷微精——"夺血者无汗，夺汗者无血"，"亡血家不可发汗"
 
 > **考点**：气血六大关系；津血同源及临床禁忌。`,1200),
-    s('sec-zhongji-020','ch-zhongji-06','zhongji','经络系统的组成',1,`### 经络系统的组成
+    s('sec-zhongji-020','ch-zhongji-02','zhongji','经络系统的组成',1,`### 经络系统的组成
 
 | 组成部分 | 内容 | 数量 |
 |----------|------|------|
@@ -415,7 +415,7 @@ export async function seed(knex: Knex): Promise<void> {
 **十二经脉全称**：手三阴（肺、心包、心），手三阳（大肠、三焦、小肠），足三阴（脾、肝、肾），足三阳（胃、胆、膀胱）。
 
 > **考点**：十二经脉全名及其分类。`),
-    s('sec-zhongji-021','ch-zhongji-06','zhongji','十二经脉走向交接与流注',2,`### 十二经脉走向交接与流注
+    s('sec-zhongji-021','ch-zhongji-02','zhongji','十二经脉走向交接与流注',2,`### 十二经脉走向交接与流注
 
 **走向规律**：手三阴从胸走手，手三阳从手走头，足三阳从头走足，足三阴从足走腹。
 
@@ -424,7 +424,7 @@ export async function seed(knex: Knex): Promise<void> {
 **流注次序歌诀**：肺大胃脾心小肠，膀肾包焦胆肝详。循环无端。
 
 > **考点**：四种走向规律；三种交接情况。`),
-    s('sec-zhongji-022','ch-zhongji-06','zhongji','奇经八脉',3,`### 奇经八脉
+    s('sec-zhongji-022','ch-zhongji-02','zhongji','奇经八脉',3,`### 奇经八脉
 
 | 奇经 | 别称 | 功能特点 |
 |------|------|----------|
@@ -436,7 +436,7 @@ export async function seed(knex: Knex): Promise<void> {
 十二正经+任督二脉=**十四经**，针灸学的基础。
 
 > **考点**：督脉阳脉之海、任脉阴脉之海、冲脉十二经之海/血海。`),
-    s('sec-zhongji-023','ch-zhongji-07','zhongji','体质的概念与形成',1,`### 体质的概念与形成
+    s('sec-zhongji-023','ch-zhongji-02','zhongji','体质的概念与形成',1,`### 体质的概念与形成
 
 体质是由先天遗传和后天获得所形成的相对稳定的个体特征。
 
@@ -445,7 +445,7 @@ export async function seed(knex: Knex): Promise<void> {
 小儿生理特点："**稚阴稚阳**"——脏腑娇嫩，形气未充。
 
 > **考点**：先天与后天因素的综合影响。`,600),
-    s('sec-zhongji-024','ch-zhongji-07','zhongji','体质的分类与应用',2,`### 体质的分类与应用
+    s('sec-zhongji-024','ch-zhongji-02','zhongji','体质的分类与应用',2,`### 体质的分类与应用
 
 **九种基本体质**：
 
@@ -464,7 +464,7 @@ export async function seed(knex: Knex): Promise<void> {
 临床意义：因人制宜——阴虚慎温燥，阳虚慎寒凉。
 
 > **考点**：九种体质辨识要点。`),
-    s('sec-zhongji-025','ch-zhongji-08','zhongji','六淫（一）：风寒暑',1,`### 六淫（一）：风、寒、暑
+    s('sec-zhongji-025','ch-zhongji-02','zhongji','六淫（一）：风寒暑',1,`### 六淫（一）：风、寒、暑
 
 六淫：风、寒、暑、湿、燥、火六种外感病邪。
 
@@ -477,7 +477,7 @@ export async function seed(knex: Knex): Promise<void> {
 六淫致病特点：外感性、季节性、地区性、相兼性、转化性。
 
 > **考点**：风善行数变、寒凝滞收引、暑多挟湿。`,1200),
-    s('sec-zhongji-026','ch-zhongji-08','zhongji','六淫（二）：湿燥火',2,`### 六淫（二）：湿、燥、火
+    s('sec-zhongji-026','ch-zhongji-02','zhongji','六淫（二）：湿燥火',2,`### 六淫（二）：湿、燥、火
 
 **湿邪**：阴邪，阻滞气机、损伤阳气；重浊（困重、分泌物秽浊）；黏滞（病程缠绵）；趋下，易袭阴位。
 
@@ -486,7 +486,7 @@ export async function seed(knex: Knex): Promise<void> {
 **火（热）邪**：阳邪，炎上；易扰心神（心烦失眠、神昏谵语）；易生风动血（热极生风；迫血妄行）；易致肿疡（疮疡，红肿热痛）。
 
 > **考点**：湿黏滞趋下、燥伤肺、火生风动血致肿疡。`),
-    s('sec-zhongji-027','ch-zhongji-08','zhongji','七情内伤与饮食劳逸',3,`### 七情内伤与饮食劳逸
+    s('sec-zhongji-027','ch-zhongji-02','zhongji','七情内伤与饮食劳逸',3,`### 七情内伤与饮食劳逸
 
 **七情**：怒喜忧思悲恐惊。
 
@@ -503,7 +503,7 @@ export async function seed(knex: Knex): Promise<void> {
 **劳逸失度**：过劳伤气伤神伤肾；过逸气血不畅、脾胃减弱。
 
 > **考点**：七情伤脏和气机紊乱的原文对应——每年必考。`),
-    s('sec-zhongji-028','ch-zhongji-08','zhongji','痰饮与瘀血',4,`### 痰饮与瘀血
+    s('sec-zhongji-028','ch-zhongji-02','zhongji','痰饮与瘀血',4,`### 痰饮与瘀血
 
 **痰饮**：水液代谢障碍的病理产物。稠浊为痰，清稀为饮。
 致病特点：阻滞气机、致病广泛（"百病多由痰作祟"）、蒙蔽清窍、病程缠绵。
@@ -518,7 +518,7 @@ export async function seed(knex: Knex): Promise<void> {
 5. 脉象——细涩、沉弦或结代
 
 > **考点**：瘀血五大致病特点（痛块血色脉）。`),
-    s('sec-zhongji-029','ch-zhongji-09','zhongji','邪正盛衰与虚实',1,`### 邪正盛衰与虚实
+    s('sec-zhongji-029','ch-zhongji-02','zhongji','邪正盛衰与虚实',1,`### 邪正盛衰与虚实
 
 | 状态 | 原文 | 特点 |
 |------|------|------|
@@ -530,7 +530,7 @@ export async function seed(knex: Knex): Promise<void> {
 **疾病转归**：正胜邪退→痊愈；邪胜正衰→危重；正虚邪恋→迁延。
 
 > **考点**：虚实的经典原文；真假虚实的辨别。`),
-    s('sec-zhongji-030','ch-zhongji-09','zhongji','阴阳失调',2,`### 阴阳失调
+    s('sec-zhongji-030','ch-zhongji-02','zhongji','阴阳失调',2,`### 阴阳失调
 
 | 类型 | 病机 | 临床表现 |
 |------|------|----------|
@@ -542,7 +542,7 @@ export async function seed(knex: Knex): Promise<void> {
 | 阴阳亡失 | 亡阴/亡阳 | 大汗淋漓、脉微欲绝 |
 
 > **考点**：阴阳格拒导致寒热真假——与反治法相联系。`),
-    s('sec-zhongji-031','ch-zhongji-09','zhongji','气血津液失常',3,`### 气血津液失常
+    s('sec-zhongji-031','ch-zhongji-02','zhongji','气血津液失常',3,`### 气血津液失常
 
 **气的失常**：气虚（少气懒言、疲乏）；气滞（胀闷痛）；气逆（肺→咳喘、胃→呕恶呃逆）；气陷（内脏下垂脱肛）；气闭（突然昏厥）；气脱（大汗亡阳）。
 
@@ -551,7 +551,7 @@ export async function seed(knex: Knex): Promise<void> {
 **津液失常**：不足（伤津脱液）；输布障碍（水湿痰饮）；排泄障碍（水肿）。
 
 > **考点**：气滞以胀为主；气逆有方向（肺/胃）；气陷升举无力。`,1200),
-    s('sec-zhongji-032','ch-zhongji-09','zhongji','内生五邪',4,`### 内生五邪
+    s('sec-zhongji-032','ch-zhongji-02','zhongji','内生五邪',4,`### 内生五邪
 
 内生五邪：内风、内寒、内湿、内燥、内火，是脏腑功能失调产生的内在病邪。
 
@@ -564,7 +564,7 @@ export async function seed(knex: Knex): Promise<void> {
 | 内火 | 阴盛化火/郁而化火/阴虚火旺 | 面赤口渴、尿赤 |
 
 > **考点**：内外邪区别——外感从外入，内生以虚为主。`),
-    s('sec-zhongji-033','ch-zhongji-10','zhongji','预防',1,`### 预防
+    s('sec-zhongji-033','ch-zhongji-02','zhongji','预防',1,`### 预防
 
 **未病先防**：
 1. 调摄精神（"恬淡虚无，真气从之"）
@@ -577,7 +577,7 @@ export async function seed(knex: Knex): Promise<void> {
 - 防止传变——"**见肝之病，知肝传脾，当先实脾**"
 
 > **考点**：治未病思想的两大方面；经典名句的临床运用。`),
-    s('sec-zhongji-034','ch-zhongji-10','zhongji','正治反治与标本缓急',2,`### 正治反治与标本缓急
+    s('sec-zhongji-034','ch-zhongji-02','zhongji','正治反治与标本缓急',2,`### 正治反治与标本缓急
 
 **正治（逆治）**：寒者热之、热者寒之、虚则补之、实则泻之。
 
@@ -593,7 +593,7 @@ export async function seed(knex: Knex): Promise<void> {
 **标本缓急**：急则治其标（大出血先止血）；缓则治其本（慢性病调病因）；标本同治（气虚外感→益气解表）。
 
 > **考点**：反治四法的概念和举例是每年必考。`,1200),
-    s('sec-zhongji-035','ch-zhongji-10','zhongji','扶正祛邪与三因制宜',3,`### 扶正祛邪与三因制宜
+    s('sec-zhongji-035','ch-zhongji-02','zhongji','扶正祛邪与三因制宜',3,`### 扶正祛邪与三因制宜
 
 **扶正祛邪**：
 - 扶正→虚证为主（益气养血滋阴温阳）

@@ -4,7 +4,7 @@ const opts = (arr: string[]) => JSON.stringify(arr.map((t, i) => ({ key: String.
 const tag = (arr: string[]) => JSON.stringify(arr)
 const q = (id: string, type: string, grp: number, gid: string|null, subj: string, ch: string, diff: number, stem: string, options: string[], ans: string, expl: string, tags: string[]): QR => ({
   id, question_type: type, is_group_root: grp, group_id: gid, subject_id: subj, chapter_id: ch,
-  section_id: '', knowledge_point_ids_json: '[]', difficulty: diff, exam_years_json: '["2024","2023","2022","2021","2020"]',
+  section_id: null, knowledge_point_ids_json: '[]', difficulty: diff, exam_years_json: '["2024","2023","2022","2021","2020"]',
   question_stem: stem, options_json: opts(options), shared_options_json: null,
   correct_answer: ans, explanation: expl, tags_json: tag(tags), order_in_group: 0
 })

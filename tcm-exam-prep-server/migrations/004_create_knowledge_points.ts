@@ -3,7 +3,7 @@ import { Knex } from 'knex'
 export async function up(knex: Knex): Promise<void> {
   await knex.schema.createTable('knowledge_points', (t) => {
     t.text('id').primary()
-    t.text('section_id').notNullable().references('id').inTable('sections').onDelete('CASCADE')
+    t.text('section_id').references('id').inTable('sections').onDelete('SET NULL')
     t.text('chapter_id').notNullable().references('id').inTable('chapters').onDelete('CASCADE')
     t.text('subject_id').notNullable().references('id').inTable('subjects').onDelete('CASCADE')
     t.text('title').notNullable()

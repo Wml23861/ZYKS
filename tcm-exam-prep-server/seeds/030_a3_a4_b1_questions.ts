@@ -17,7 +17,7 @@ function q(
 ): QR {
   return {
     id, question_type: type, is_group_root: grp, group_id: gid, subject_id: subj, chapter_id: ch,
-    section_id: '', knowledge_point_ids_json: '[]', difficulty: diff, exam_years_json: '[]',
+    section_id: null, knowledge_point_ids_json: '[]', difficulty: diff, exam_years_json: '[]',
     question_stem: stem, options_json: opts(options), shared_options_json: null,
     correct_answer: ans, explanation: expl, tags_json: tag(tags), order_in_group: ord,
   }
@@ -29,7 +29,7 @@ function root(
 ): QR {
   return {
     id, question_type: type, is_group_root: 1, group_id: null, subject_id: subj, chapter_id: ch,
-    section_id: '', knowledge_point_ids_json: '[]', difficulty: diff, exam_years_json: '[]',
+    section_id: null, knowledge_point_ids_json: '[]', difficulty: diff, exam_years_json: '[]',
     question_stem: stem, options_json: '[]',
     shared_options_json: sharedOpts ? opts(sharedOpts) : null,
     correct_answer: '', explanation: '', tags_json: tag(tags), order_in_group: 0,
@@ -42,7 +42,7 @@ function sub(
 ): QR {
   return {
     id, question_type: type, is_group_root: 0, group_id: gid, subject_id: subj, chapter_id: ch,
-    section_id: '', knowledge_point_ids_json: '[]', difficulty: diff, exam_years_json: '[]',
+    section_id: null, knowledge_point_ids_json: '[]', difficulty: diff, exam_years_json: '[]',
     question_stem: stem, options_json: opts(options), shared_options_json: null,
     correct_answer: ans, explanation: expl, tags_json: tag(tags), order_in_group: ord,
   }
@@ -54,7 +54,7 @@ function b1sub(
 ): QR {
   return {
     id, question_type: 'B1', is_group_root: 0, group_id: gid, subject_id: subj, chapter_id: ch,
-    section_id: '', knowledge_point_ids_json: '[]', difficulty: diff, exam_years_json: '[]',
+    section_id: null, knowledge_point_ids_json: '[]', difficulty: diff, exam_years_json: '[]',
     question_stem: stem, options_json: '[]', shared_options_json: null,
     correct_answer: ans, explanation: expl, tags_json: tag(tags), order_in_group: ord,
   }
@@ -786,9 +786,9 @@ const B1_ROOTS = [
   // ===== 其他 3组 =====
   root('q-b1-zhongji-grp-003', 'B1', 'zhongji', 'ch-zhongji-02',
     '', ['阴阳对立制约','阴阳互根互用','阴阳消长平衡','阴阳相互转化','阴阳交感与互藏'], ['阴阳学说','B1型题'], 3),
-  root('q-b1-zhongji-grp-004', 'B1', 'zhongji', 'ch-zhongji-03',
+  root('q-b1-zhongji-grp-004', 'B1', 'zhongji', 'ch-zhongji-02',
     '', ['木','火','土','金','水'], ['五行学说','B1型题'], 3),
-  root('q-b1-zhongji-grp-005', 'B1', 'zhongji', 'ch-zhongji-04',
+  root('q-b1-zhongji-grp-005', 'B1', 'zhongji', 'ch-zhongji-02',
     '', ['心','肝','脾','肺','肾'], ['藏象学说','B1型题'], 3),
 ]
 
@@ -926,19 +926,19 @@ const B1_SUBS: QR[] = [
     '"重阴必阳，重阳必阴"体现了阴阳的：', 'D', '事物发展到极点时可向相反方向转化，体现了阴阳相互转化的关系。', ['阴阳学说','相互转化'], 3),
 
   // zhongji-004: 五行学说
-  b1sub('q-b1-zhongji-sub-011', 'q-b1-zhongji-grp-004', 'zhongji', 'ch-zhongji-03', 3,
+  b1sub('q-b1-zhongji-sub-011', 'q-b1-zhongji-grp-004', 'zhongji', 'ch-zhongji-02', 3,
     '具有"曲直"特性的是：', 'A', '木曰曲直，引申为生长、升发、条达、舒畅等特性。', ['五行学说','木'], 1),
-  b1sub('q-b1-zhongji-sub-012', 'q-b1-zhongji-grp-004', 'zhongji', 'ch-zhongji-03', 3,
+  b1sub('q-b1-zhongji-sub-012', 'q-b1-zhongji-grp-004', 'zhongji', 'ch-zhongji-02', 3,
     '具有"稼穑"特性的是：', 'C', '土爰稼穑，引申为生化、承载、受纳等特性。', ['五行学说','土'], 2),
-  b1sub('q-b1-zhongji-sub-013', 'q-b1-zhongji-grp-004', 'zhongji', 'ch-zhongji-03', 3,
+  b1sub('q-b1-zhongji-sub-013', 'q-b1-zhongji-grp-004', 'zhongji', 'ch-zhongji-02', 3,
     '具有"从革"特性的是：', 'D', '金曰从革，引申为清洁、肃降、收敛等特性。', ['五行学说','金'], 3),
 
   // zhongji-005: 藏象学说
-  b1sub('q-b1-zhongji-sub-014', 'q-b1-zhongji-grp-005', 'zhongji', 'ch-zhongji-04', 3,
+  b1sub('q-b1-zhongji-sub-014', 'q-b1-zhongji-grp-005', 'zhongji', 'ch-zhongji-02', 3,
     '被称为"君主之官"的是：', 'A', '心主血脉、藏神，为"君主之官"、"五脏六腑之大主"。', ['藏象学说','心'], 1),
-  b1sub('q-b1-zhongji-sub-015', 'q-b1-zhongji-grp-005', 'zhongji', 'ch-zhongji-04', 3,
+  b1sub('q-b1-zhongji-sub-015', 'q-b1-zhongji-grp-005', 'zhongji', 'ch-zhongji-02', 3,
     '被称为"将军之官"的是：', 'B', '肝主疏泄、藏血，性刚强躁急，故称"将军之官"。', ['藏象学说','肝'], 2),
-  b1sub('q-b1-zhongji-sub-016', 'q-b1-zhongji-grp-005', 'zhongji', 'ch-zhongji-04', 3,
+  b1sub('q-b1-zhongji-sub-016', 'q-b1-zhongji-grp-005', 'zhongji', 'ch-zhongji-02', 3,
     '被称为"先天之本"的是：', 'E', '肾藏精，主生长发育与生殖，为"先天之本"。', ['藏象学说','肾'], 3),
 ]
 

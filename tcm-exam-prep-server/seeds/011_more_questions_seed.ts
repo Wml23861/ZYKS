@@ -28,7 +28,7 @@ const q = (
   }
   return {
     id, question_type: type, is_group_root: grp, group_id: gid, subject_id: subj, chapter_id: ch,
-    section_id: '', knowledge_point_ids_json: '[]', difficulty: diff, exam_years_json: '[]',
+    section_id: null, knowledge_point_ids_json: '[]', difficulty: diff, exam_years_json: '[]',
     question_stem: stem, options_json: opts(options), shared_options_json: shared,
     correct_answer: ans, explanation: expl, tags_json: tag(tags), order_in_group: ord,
   }
