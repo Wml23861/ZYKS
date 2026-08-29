@@ -285,6 +285,11 @@ function buildB1GroupData(rootId: string): B1GroupData {
   if (cached) return cached
 
   const root = questionMap.value[rootId]
+  if (!root) {
+    const empty = { sharedOptions: [], subQuestions: [] }
+    b1GroupCache.set(rootId, empty)
+    return empty
+  }
   const subIds = flatItems.value
     .filter(item => item.groupRootId === rootId)
     .map(item => item.questionId)
@@ -551,6 +556,15 @@ async function loadQuestions(): Promise<void> {
         })
         const target = countStr ? parseInt(countStr, 10) : 150
         const finalQ = pickRandom(examQ.length > 0 ? examQ : allQ.slice(0, target), target)
+        // 确保 B1/A3/A4 子题的 group root 也在 finalQ 中
+        for (const q of finalQ) {
+          if (!q.isGroupRoot && q.groupId && (q.type === 'B1' || q.type === 'A3' || q.type === 'A4')) {
+            if (!finalQ.some(r => r.id === q.groupId)) {
+              const root = allQ.find(r => r.id === q.groupId)
+              if (root) finalQ.push(root)
+            }
+          }
+        }
         // 让后续代码处理：构建questionMap + flat items
         allQuestions.value = finalQ
         const qMap: Record<string, Question> = {}
@@ -597,6 +611,21 @@ async function loadQuestions(): Promise<void> {
     allFetched = shuffle(allFetched)
     if (count > 0 && count < allFetched.length) {
       allFetched = pickRandom(allFetched, count)
+    }
+    // 确保 B1/A3/A4 子题的 group root 也被包含
+    const missingRootIds = new Set<string>()
+    for (const q of allFetched) {
+      if (!q.isGroupRoot && q.groupId && (q.type === 'B1' || q.type === 'A3' || q.type === 'A4')) {
+        if (!allFetched.some(r => r.id === q.groupId)) {
+          missingRootIds.add(q.groupId)
+        }
+      }
+    }
+    if (missingRootIds.size > 0) {
+      for (const rid of missingRootIds) {
+        const root = await questionRepo.findById(rid)
+        if (root) allFetched.push(root)
+      }
     }
 
     allQuestions.value = allFetched

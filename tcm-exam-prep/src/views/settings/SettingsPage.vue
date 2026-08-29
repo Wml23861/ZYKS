@@ -203,6 +203,7 @@
             <div v-if="u.id !== authStore.user?.id" class="user-actions-row">
               <input v-model="resetPw[u.id]" type="text" class="form-input form-input--sm" placeholder="新密码" />
               <TcmButton size="sm" variant="text" @click="handleResetUserPw(u.id)">重置</TcmButton>
+              <TcmButton size="sm" variant="danger" @click="handleDeleteUser(u.id)">删除</TcmButton>
             </div>
           </div>
         </div>
@@ -219,6 +220,8 @@
         </TcmButton>
       </div>
     </template>
+
+    <TcmConfirm ref="confirmRef" />
   </div>
 </template>
 
@@ -227,9 +230,10 @@ import { reactive, ref, computed, onMounted } from 'vue'
 import TcmCard from '@/components/ui/TcmCard.vue'
 import TcmButton from '@/components/ui/TcmButton.vue'
 import TcmSkeleton from '@/components/ui/TcmSkeleton.vue'
+import TcmConfirm from '@/components/ui/TcmConfirm.vue'
 import { useSettingsStore } from '@/stores/useSettingsStore'
 import { useAuthStore } from '@/stores/useAuthStore'
-import { apiGet, apiPut, apiPost } from '@/utils/api-client'
+import { apiGet, apiPut, apiPost, apiDelete } from '@/utils/api-client'
 import { daysUntilExam } from '@/utils/date'
 import type { AppSettings, ThemeMode, FontSize, Season } from '@/types'
 
@@ -259,6 +263,7 @@ interface UserItem { id: string; username: string; displayName: string; role: st
 const userList = ref<UserItem[]>([])
 const resetPw = reactive<Record<string, string>>({})
 const loadingUsers = ref(false)
+const confirmRef = ref<InstanceType<typeof TcmConfirm> | null>(null)
 async function loadUserList(): Promise<void> {
   loadingUsers.value = true
   try { userList.value = await apiGet<UserItem[]>('/api/auth/users') } catch { userList.value = [] }
@@ -274,6 +279,25 @@ async function handleResetUserPw(userId: string): Promise<void> {
   } catch (e: unknown) {
     const err = e as Error; alert(err.message || '重置失败')
   }
+}
+async function handleDeleteUser(userId: string): Promise<void> {
+  const target = userList.value.find((u) => u.id === userId)
+  const name = target?.displayName || target?.username || userId
+  confirmRef.value?.show({
+    title: '删除账号',
+    message: `确定删除账号「${name}」？\n该账号的学习记录、错题、笔记等数据将被永久删除，无法恢复。`,
+    type: 'danger',
+    confirmText: '删除',
+    onConfirm: async () => {
+      try {
+        await apiDelete(`/api/auth/users/${userId}`)
+        await loadUserList()
+      } catch (e: unknown) {
+        const err = e as Error
+        alert(err.message || '删除失败')
+      }
+    },
+  })
 }
 onMounted(() => { if (authStore.user?.role === 'admin') loadUserList() })
 

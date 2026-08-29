@@ -67,7 +67,7 @@ router.post('/reset-password/:userId', requireAuth, async (req, res, next) => {
     if (!newPassword || newPassword.length < 6) {
       return res.status(400).json({ success: false, error: '新密码至少6位' })
     }
-    await authService.resetUserPassword(req.userId!, req.params.userId, newPassword)
+    await authService.resetUserPassword(req.userId!, req.params.userId as string, newPassword)
     res.json({ success: true, data: { message: '密码已重置' } })
   } catch (err) {
     next(err)
@@ -79,6 +79,17 @@ router.get('/users', requireAuth, async (req, res, next) => {
   try {
     const users = await authService.listUsers(req.userId!)
     res.json({ success: true, data: users })
+  } catch (err) {
+    next(err)
+  }
+})
+
+// DELETE /api/auth/users/:userId — 管理员删除账号（含全部关联数据）
+router.delete('/users/:userId', requireAuth, async (req, res, next) => {
+  try {
+    const targetUserId = req.params.userId as string
+    await authService.deleteUser(req.userId!, targetUserId)
+    res.json({ success: true, data: { message: '账号已删除' } })
   } catch (err) {
     next(err)
   }

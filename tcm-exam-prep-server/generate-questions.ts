@@ -207,7 +207,7 @@ ${allKpText.slice(0,5000)}
     }
 
     for(const g of validGroups){
-      const gid=`grp-${subject}-b1-gen${String(idx).padStart(3,'0')}`
+      const gid=`q-${subject}-b1-gen${String(idx).padStart(4,'0')}`
       const sharedJson=JSON.stringify(g.shared_options.map((t:string,i:number)=>({key:String.fromCharCode(65+i),text:t.replace(/^[A-E][.、)\s]+/,'')})))
       // group root
       questions.push({
