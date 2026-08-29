@@ -76,6 +76,10 @@ export interface Video {
   transcodedVariants: VideoVariant[]
   /** AI 科目匹配结果 */
   subjectMatchResult: SubjectMatchItem[]
+  /** 所属用户 ID（仅管理员查看全部视频时返回） */
+  userId?: string
+  /** 所属用户昵称（仅管理员查看全部视频时返回） */
+  ownerName?: string
 }
 
 /** 本地视频文件信息（来自 video/ 目录） */
@@ -86,6 +90,15 @@ export interface LocalVideoFile {
   size: number
   url: string
   relativePath: string
+}
+
+/** 本地视频目录树节点（按 video/ 下的目录层级组织，泛型支持本地文件与已入库视频） */
+export interface DirTreeNode<T = LocalVideoFile> {
+  name: string
+  path: string
+  videos: T[]
+  children: DirTreeNode<T>[]
+  totalVideos: number
 }
 
 export interface VideoKeyPoint {

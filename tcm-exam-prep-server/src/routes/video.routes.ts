@@ -57,7 +57,7 @@ const upload = multer({
 // GET /api/videos
 router.get('/videos', async (req, res, next) => {
   try {
-    const videos = await videoService.findAll(req.userId!)
+    const videos = await videoService.findAll(req.userId!, req.userRole === 'admin')
     res.json({ success: true, data: videos })
   } catch (err) {
     next(err)
@@ -87,7 +87,7 @@ router.get('/videos/scan', async (req, res, next) => {
           }
           if (formatMap[ext]) {
             const stat = fs.statSync(path.join(dir, entry.name))
-            const relativePath = basePath ? `${basePath}/${entry.name}` : entry.name
+            const relativePath = (basePath ? `${basePath}/${entry.name}` : entry.name).replace(/\\/g, '/')
             results.push({
               filename: entry.name,
               title: path.basename(entry.name, ext),
@@ -102,6 +102,15 @@ router.get('/videos/scan', async (req, res, next) => {
     }
 
     scanDir(videoDir)
+
+    // 同步学习库：文件若已移动（旧路径失效），按文件名重新指向当前路径
+    try {
+      const fixed = await videoService.rematchFilePaths(videoDir, results)
+      if (fixed > 0) console.log(`[Scan] 已重新匹配 ${fixed} 个移动过的视频路径`)
+    } catch (e) {
+      console.error('[Scan] 重新匹配路径失败', e)
+    }
+
     res.json({ success: true, data: results })
   } catch (err) {
     next(err)
@@ -154,7 +163,7 @@ router.post('/videos/upload', upload.single('file'), async (req, res, next) => {
 // GET /api/videos/:id
 router.get('/videos/:id', async (req, res, next) => {
   try {
-    const video = await videoService.findById(req.userId!, req.params.id)
+    const video = await videoService.findById(req.userId!, req.params.id, req.userRole === 'admin')
     if (!video) return res.status(404).json({ success: false, error: '视频不存在' })
     res.json({ success: true, data: video })
   } catch (err) {
@@ -185,7 +194,8 @@ router.put('/videos/:id', async (req, res, next) => {
 // DELETE /api/videos/:id
 router.delete('/videos/:id', async (req, res, next) => {
   try {
-    await videoService.delete(req.userId!, req.params.id)
+    const deleted = await videoService.delete(req.userId!, req.params.id)
+    if (deleted === 0) return res.status(403).json({ success: false, error: '无权删除该视频' })
     res.status(204).send()
   } catch (err) {
     next(err)
@@ -195,7 +205,7 @@ router.delete('/videos/:id', async (req, res, next) => {
 // POST /api/videos/:id/process — 触发 AI 处理
 router.post('/videos/:id/process', async (req, res, next) => {
   try {
-    const video = await videoService.findById(req.userId!, req.params.id)
+    const video = await videoService.findById(req.userId!, req.params.id, req.userRole === 'admin')
     if (!video) return res.status(404).json({ success: false, error: '视频不存在' })
 
     const { force } = req.body as { force?: boolean }
@@ -225,7 +235,7 @@ router.post('/videos/:id/process', async (req, res, next) => {
 // POST /api/videos/:id/transcode — 快速转换为 MP4（用于播放）
 router.post('/videos/:id/transcode', async (req, res, next) => {
   try {
-    const video = await videoService.findById(req.userId!, req.params.id)
+    const video = await videoService.findById(req.userId!, req.params.id, req.userRole === 'admin')
     if (!video) return res.status(404).json({ success: false, error: '视频不存在' })
 
     const ext = path.extname(video.fileUrl).toLowerCase()

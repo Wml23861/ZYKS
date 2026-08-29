@@ -38,6 +38,11 @@ interface VideoRow {
   quiz_questions_json: string
 }
 
+interface VideoRowWithOwner extends VideoRow {
+  owner_username?: string
+  owner_display_name?: string
+}
+
 interface AnnotationRow {
   id: string
   user_id: string
@@ -110,18 +115,78 @@ export interface VideoCreateInput {
 }
 
 export const videoService = {
-  async findAll(userId: string) {
+  async findAll(userId: string, isAdmin = false) {
     const db = getDb()
-    const rows = await db<VideoRow>('videos')
-      .where({ user_id: userId })
-      .orderBy('uploaded_at', 'desc')
-    return rows.map(mapVideo)
+    if (!isAdmin) {
+      const rows = await db<VideoRow>('videos')
+        .where({ user_id: userId })
+        .orderBy('uploaded_at', 'desc')
+      return rows.map(mapVideo)
+    }
+    // 管理员：查看全部用户视频，按 file_url 去重并附带所属用户信息
+    const rows = await db<VideoRowWithOwner>('videos as v')
+      .leftJoin('users as u', 'v.user_id', 'u.id')
+      .select('v.*', 'u.username as owner_username', 'u.display_name as owner_display_name')
+      .orderBy('v.uploaded_at', 'desc')
+    const seen = new Set<string>()
+    const deduped = rows.filter((r) => {
+      if (seen.has(r.file_url)) return false
+      seen.add(r.file_url)
+      return true
+    })
+    return deduped.map((r) => ({
+      ...mapVideo(r),
+      userId: r.user_id,
+      ownerName: r.owner_display_name || r.owner_username || r.user_id,
+    }))
   },
 
-  async findById(userId: string, id: string) {
+  async findById(userId: string, id: string, isAdmin = false) {
     const db = getDb()
-    const row = await db<VideoRow>('videos').where({ id, user_id: userId }).first()
+    let query = db<VideoRow>('videos').where({ id })
+    if (!isAdmin) query = query.where({ user_id: userId })
+    const row = await query.first()
     return row ? mapVideo(row) : undefined
+  },
+
+  /**
+   * 扫描后同步：若 DB 视频的文件已移动（旧路径失效），按文件名重新指向当前路径。
+   * 返回修复条数。文件名重复（无法唯一确定）的跳过，避免误指。
+   */
+  async rematchFilePaths(videoDir: string, currentFiles: { relativePath: string }[]) {
+    const db = getDb()
+    const fs = await import('node:fs')
+    const path = await import('node:path')
+
+    // basename -> 当前相对路径（重复的文件名剔除，避免歧义）
+    const index = new Map<string, string>()
+    const dup = new Set<string>()
+    for (const f of currentFiles) {
+      const base = f.relativePath.split('/').pop()
+      if (!base) continue
+      if (index.has(base)) { dup.add(base); index.delete(base) }
+      else if (!dup.has(base)) index.set(base, f.relativePath)
+    }
+
+    const rows = await db<VideoRow>('videos').select('id', 'file_url')
+    let fixed = 0
+    for (const r of rows) {
+      const fu = r.file_url
+      if (!fu || !fu.startsWith('/api/video/file/')) continue
+      let rel: string
+      try { rel = decodeURIComponent(fu.replace('/api/video/file/', '')) } catch { continue }
+      if (rel.startsWith('transcoded/')) continue
+      // 路径仍有效则跳过
+      if (fs.existsSync(path.join(videoDir, rel))) continue
+      const base = rel.split('/').pop()
+      if (!base) continue
+      const newRel = index.get(base)
+      if (newRel && newRel !== rel) {
+        await db('videos').where({ id: r.id }).update({ file_url: `/api/video/file/${encodeURIComponent(newRel)}` })
+        fixed++
+      }
+    }
+    return fixed
   },
 
   async create(userId: string, input: VideoCreateInput) {
@@ -229,18 +294,21 @@ export const videoService = {
 
   async delete(userId: string, id: string) {
     const db = getDb()
-    // 清理关联的转码文件
-    try {
-      const path = await import('node:path')
-      const { fileURLToPath } = await import('node:url')
-      const fs = await import('node:fs')
-      const transcodeDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'data', 'transcoded')
-      for (const suffix of ['_audio.wav', '_audio.wav.whisper.json', '_original.mp4', '_720p.mp4', '_480p.mp4']) {
-        try { fs.unlinkSync(path.join(transcodeDir, id + suffix)) } catch {}
-      }
-    } catch { /* 清理失败不影响删除 */ }
     await db('video_annotations').where({ video_id: id, user_id: userId }).del()
-    await db('videos').where({ id, user_id: userId }).del()
+    const deleted = await db('videos').where({ id, user_id: userId }).del()
+    // 只有真正删除了记录，才清理关联的转码文件（避免误删他人视频的 AI 产物）
+    if (deleted > 0) {
+      try {
+        const path = await import('node:path')
+        const { fileURLToPath } = await import('node:url')
+        const fs = await import('node:fs')
+        const transcodeDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'data', 'transcoded')
+        for (const suffix of ['_audio.wav', '_audio.wav.whisper.json', '_original.mp4', '_720p.mp4', '_480p.mp4']) {
+          try { fs.unlinkSync(path.join(transcodeDir, id + suffix)) } catch {}
+        }
+      } catch { /* 清理失败不影响删除 */ }
+    }
+    return deleted
   },
 
   async getAnnotations(userId: string, videoId: string) {

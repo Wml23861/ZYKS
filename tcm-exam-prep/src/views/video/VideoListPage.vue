@@ -41,57 +41,83 @@
       </div>
     </div>
 
-    <!-- 学习库中已就绪的视频 -->
+    <!-- 学习库中已就绪的视频（按目录分组） -->
     <div v-if="readyVideos.length > 0" class="section">
-      <h2 class="section-title">学习库</h2>
-      <div class="video-grid">
-        <div v-for="v in readyVideos" :key="v.id" class="video-card"
-          @click="$router.push(`/videos/${v.id}`)">
-          <button class="video-delete-btn" title="删除" @click.stop="handleDelete(v)">&times;</button>
-          <div class="video-thumbnail">
-            <div class="video-thumbnail-placeholder">
-              <span class="video-format-badge">{{ v.format?.toUpperCase() || 'MP4' }}</span>
-              <span class="video-play-icon">&#x25B6;</span>
-            </div>
-            <span v-if="v.duration > 0" class="video-duration">{{ formatDuration(v.duration) }}</span>
-            <span v-if="v.extractedKeyPoints?.length" class="video-kp-badge">
-              {{ v.extractedKeyPoints.length }} 知识点
-            </span>
-          </div>
-          <div class="video-info">
-            <h3 class="video-title">{{ v.title }}</h3>
-            <p class="video-desc">{{ v.description || '暂无描述' }}</p>
-            <div class="video-meta">
-              <TcmTag :type="statusTag(v.processingStatus)" size="sm">
-                {{ statusLabel(v.processingStatus) }}
-              </TcmTag>
-              <span class="video-subjects">{{ v.subjectIds.map(getSubjectName).filter(Boolean).join('、') || '未分类' }}</span>
-            </div>
-          </div>
+      <div class="section-head">
+        <div>
+          <h2 class="section-title">学习库</h2>
+          <p class="section-desc">已入库的视频按目录分组，点击目录展开查看</p>
         </div>
+        <div class="section-actions">
+          <TcmButton variant="text" size="sm" @click="setAllExpanded(readyTree, true)">全部展开</TcmButton>
+          <TcmButton variant="text" size="sm" @click="setAllExpanded(readyTree, false)">全部收起</TcmButton>
+        </div>
+      </div>
+
+      <div class="dir-groups">
+        <VideoDirNode v-for="node in readyTopNodes" :key="node.path" :node="node">
+          <template #default="{ item }">
+            <div class="video-card" @click="$router.push(`/videos/${item.id}`)">
+              <button v-if="canDelete(item)" class="video-delete-btn" title="删除" @click.stop="handleDelete(item)">&times;</button>
+              <div class="video-thumbnail">
+                <div class="video-thumbnail-placeholder">
+                  <span class="video-format-badge">{{ item.format?.toUpperCase() || 'MP4' }}</span>
+                  <span class="video-play-icon">&#x25B6;</span>
+                </div>
+                <span v-if="item.duration > 0" class="video-duration">{{ formatDuration(item.duration) }}</span>
+                <span v-if="item.extractedKeyPoints?.length" class="video-kp-badge">
+                  {{ item.extractedKeyPoints.length }} 知识点
+                </span>
+              </div>
+              <div class="video-info">
+                <h3 class="video-title">{{ item.title }}</h3>
+                <p class="video-desc">{{ item.description || '暂无描述' }}</p>
+                <div class="video-meta">
+                  <TcmTag :type="statusTag(item.processingStatus)" size="sm">
+                    {{ statusLabel(item.processingStatus) }}
+                  </TcmTag>
+                  <TcmTag v-if="item.ownerName" type="key" size="sm">{{ item.ownerName }}</TcmTag>
+                  <span class="video-subjects">{{ item.subjectIds.map(getSubjectName).filter(Boolean).join('、') || '未分类' }}</span>
+                </div>
+              </div>
+            </div>
+          </template>
+        </VideoDirNode>
       </div>
     </div>
 
-    <!-- 本地 video/ 目录下未入库的视频 -->
+    <!-- 本地 video/ 目录下未入库的视频（按目录分组） -->
     <div v-if="unimportedVideos.length > 0" class="section">
-      <h2 class="section-title">video 目录</h2>
-      <p class="section-desc">以下视频文件在 video 目录下，点击即可添加到学习库并播放</p>
-      <div class="video-grid">
-        <div v-for="lv in unimportedVideos" :key="lv.relativePath" class="video-card local"
-          @click="addLocalToLibrary(lv)">
-          <div class="video-thumbnail flv-thumbnail">
-            <span class="video-format-badge">{{ lv.format.toUpperCase() }}</span>
-            <span class="video-play-icon">&#x25B6;</span>
-          </div>
-          <div class="video-info">
-            <h3 class="video-title">{{ lv.title }}</h3>
-            <p class="video-desc">{{ formatSize(lv.size) }} · {{ lv.format.toUpperCase() }}</p>
-            <div class="video-meta">
-              <TcmTag type="default" size="sm">video 目录</TcmTag>
-              <span v-if="lv.relativePath.includes('/')" class="video-path">{{ lv.relativePath }}</span>
-            </div>
-          </div>
+      <div class="section-head">
+        <div>
+          <h2 class="section-title">video 目录</h2>
+          <p class="section-desc">按目录分组展示，点击目录展开查看视频，点击视频即可添加到学习库并播放</p>
         </div>
+        <div class="section-actions">
+          <TcmButton variant="text" size="sm" @click="setAllExpanded(dirTree, true)">全部展开</TcmButton>
+          <TcmButton variant="text" size="sm" @click="setAllExpanded(dirTree, false)">全部收起</TcmButton>
+        </div>
+      </div>
+
+      <div class="dir-groups">
+        <VideoDirNode v-for="node in localTopNodes" :key="node.path" :node="node">
+          <template #default="{ item }">
+            <div class="video-card local" @click="addLocalToLibrary(item)">
+              <div class="video-thumbnail flv-thumbnail">
+                <span class="video-format-badge">{{ item.format.toUpperCase() }}</span>
+                <span class="video-play-icon">&#x25B6;</span>
+              </div>
+              <div class="video-info">
+                <h3 class="video-title">{{ item.title }}</h3>
+                <p class="video-desc">{{ formatSize(item.size) }} · {{ item.format.toUpperCase() }}</p>
+                <div class="video-meta">
+                  <TcmTag type="default" size="sm">video 目录</TcmTag>
+                  <span v-if="item.relativePath.includes('/')" class="video-path">{{ item.relativePath }}</span>
+                </div>
+              </div>
+            </div>
+          </template>
+        </VideoDirNode>
       </div>
     </div>
 
@@ -103,20 +129,23 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, provide, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { videoRepo } from '@/db/repositories/videoRepo'
 import { useSubjectStore } from '@/stores/useSubjectStore'
+import { useAuthStore } from '@/stores/useAuthStore'
 import { generateId } from '@/utils/id-generator'
 import { formatDuration } from '@/utils/date'
 import TcmButton from '@/components/ui/TcmButton.vue'
 import TcmTag from '@/components/ui/TcmTag.vue'
 import TcmEmpty from '@/components/ui/TcmEmpty.vue'
 import TcmConfirm from '@/components/ui/TcmConfirm.vue'
-import type { Video, LocalVideoFile, VideoFormat } from '@/types'
+import VideoDirNode from './VideoDirNode.vue'
+import type { Video, LocalVideoFile, VideoFormat, DirTreeNode } from '@/types'
 
 const router = useRouter()
 const subjectStore = useSubjectStore()
+const authStore = useAuthStore()
 const allVideos = ref<Video[]>([])
 const localVideos = ref<LocalVideoFile[]>([])
 const isScanning = ref(false)
@@ -143,6 +172,112 @@ const unimportedVideos = computed(() =>
     !allVideos.value.some(v => normalizeUrl(v.fileUrl) === normalizeUrl(lv.url))
   )
 )
+
+/** 带相对路径的条目（用于目录树分组） */
+type HasPath = { relativePath: string; title: string }
+
+/** 取条目所在目录的相对路径（不含文件名） */
+function dirOf(item: HasPath): string {
+  const idx = item.relativePath.lastIndexOf('/')
+  return idx === -1 ? '' : item.relativePath.slice(0, idx)
+}
+
+/** 按目录层级构建树 */
+function buildDirTree<T extends HasPath>(items: T[]): DirTreeNode<T> {
+  const root: DirTreeNode<T> = { name: '', path: '', videos: [], children: [], totalVideos: 0 }
+  const map = new Map<string, DirTreeNode<T>>([['', root]])
+  for (const item of items) {
+    const dir = dirOf(item)
+    if (!dir) { root.videos.push(item); continue }
+    let node = map.get(dir)
+    if (!node) {
+      const segs = dir.split('/')
+      let parent = root
+      let cur = ''
+      for (const seg of segs) {
+        cur = cur ? `${cur}/${seg}` : seg
+        let n = map.get(cur)
+        if (!n) {
+          n = { name: seg, path: cur, videos: [], children: [], totalVideos: 0 }
+          map.set(cur, n)
+          parent.children.push(n)
+        }
+        parent = n
+      }
+      node = map.get(dir)!
+    }
+    node.videos.push(item)
+  }
+  const walk = (n: DirTreeNode<T>): number => {
+    n.children.sort((a, b) => a.name.localeCompare(b.name, 'zh-CN'))
+    n.videos.sort((a, b) => a.title.localeCompare(b.title, 'zh-CN'))
+    n.totalVideos = n.videos.length + n.children.reduce((s, c) => s + walk(c), 0)
+    return n.totalVideos
+  }
+  walk(root)
+  return root
+}
+
+/** 从 fileUrl 反推相对 video/ 目录的路径 */
+function fileUrlToRelativePath(fileUrl: string): string {
+  let p = fileUrl.replace(/^https?:\/\/[^/]+/, '')
+  try { p = decodeURIComponent(p) } catch { /* keep raw */ }
+  const prefix = '/api/video/file/'
+  if (p.startsWith(prefix)) p = p.slice(prefix.length)
+  return p.replace(/\\/g, '/')
+}
+
+/** 未入库视频的目录树 */
+const dirTree = computed<DirTreeNode<LocalVideoFile>>(() => buildDirTree(unimportedVideos.value))
+
+/** 学习库已入库视频（补上 relativePath）的目录树 */
+const readyVideosWithPath = computed(() =>
+  readyVideos.value.map(v => ({ ...v, relativePath: fileUrlToRelativePath(v.fileUrl) }))
+)
+const readyTree = computed(() => buildDirTree(readyVideosWithPath.value))
+
+/** 顶层节点列表：若根目录下有直接视频，则额外插入「根目录」节点 */
+function topNodes<T>(tree: DirTreeNode<T>): DirTreeNode<T>[] {
+  const nodes: DirTreeNode<T>[] = [...tree.children]
+  if (tree.videos.length) {
+    nodes.unshift({ name: '根目录', path: '__root__', videos: tree.videos, children: [], totalVideos: tree.videos.length })
+  }
+  return nodes
+}
+
+const localTopNodes = computed(() => topNodes(dirTree.value))
+const readyTopNodes = computed(() => topNodes(readyTree.value))
+
+/** 已展开的目录集合（默认全部收起） */
+const expandedDirs = ref<Set<string>>(new Set())
+
+function isExpanded(path: string): boolean {
+  return expandedDirs.value.has(path)
+}
+
+function toggleDir(path: string) {
+  const next = new Set(expandedDirs.value)
+  if (next.has(path)) next.delete(path)
+  else next.add(path)
+  expandedDirs.value = next
+}
+
+function collectPaths(tree: DirTreeNode<any>): string[] {
+  const all: string[] = []
+  const walk = (n: DirTreeNode<any>) => { if (n.path) all.push(n.path); n.children.forEach(walk) }
+  walk(tree)
+  return all
+}
+
+function setAllExpanded(tree: DirTreeNode<any>, expand: boolean) {
+  const next = new Set(expandedDirs.value)
+  const paths = collectPaths(tree)
+  for (const p of paths) { if (expand) next.add(p); else next.delete(p) }
+  expandedDirs.value = next
+}
+
+// 向递归子组件提供折叠状态
+provide('dir-expand', { isExpanded, toggle: toggleDir })
 
 function getSubjectName(id: string): string {
   return subjectStore.subjects.find(s => s.id === id)?.shortName || ''
@@ -194,9 +329,15 @@ async function handleScan() {
   isScanning.value = true
   try {
     localVideos.value = await videoRepo.scanLocalVideos()
+    allVideos.value = await videoRepo.findAll()
   } finally {
     isScanning.value = false
   }
+}
+
+/** 管理员查看全部视频时，只能删除自己入库的视频（普通用户不受影响） */
+function canDelete(video: Video): boolean {
+  return !video.userId || video.userId === authStore.user?.id
 }
 
 function handleDelete(video: Video) {
@@ -229,6 +370,7 @@ async function addLocalToLibrary(lv: LocalVideoFile) {
     subjectIds: [], knowledgePointIds: [],
     extractedSummary: '', extractedKeyPoints: [], extractedDifficultPoints: [],
     transcriptText: '', aiTranscript: '', aiSummary: '',
+    ocrText: '', infoDraft: '', quizQuestions: [],
     status: 'ready',
     processingStatus: 'raw', processingError: '',
     processingProgress: 0, processingStep: '',
@@ -244,8 +386,9 @@ async function addLocalToLibrary(lv: LocalVideoFile) {
 
 onMounted(async () => {
   await subjectStore.loadSubjects()
-  allVideos.value = await videoRepo.findAll()
+  // 先扫描（扫描会同步修复移动过的视频路径），再拉取学习库列表
   try { localVideos.value = await videoRepo.scanLocalVideos() } catch { /* ignore */ }
+  allVideos.value = await videoRepo.findAll()
   startProgressPolling()
 })
 
@@ -263,6 +406,10 @@ onBeforeUnmount(() => {
 .section { margin-bottom: 32px; }
 .section-title { font-size: var(--tcm-font-lg); font-weight: 600; color: var(--tcm-text-primary); margin-bottom: 4px; }
 .section-desc { font-size: var(--tcm-font-sm); color: var(--tcm-text-secondary); margin-bottom: 16px; }
+.section-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.section-actions { display: flex; gap: 4px; align-items: center; }
+
+.dir-groups { display: flex; flex-direction: column; gap: 8px; }
 
 .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
 .video-card { background: var(--tcm-bg-surface); border: 1px solid var(--tcm-border-light); border-radius: var(--tcm-radius-lg); overflow: hidden; cursor: pointer; transition: all 0.2s; position: relative; }
